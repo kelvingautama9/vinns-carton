@@ -102,6 +102,32 @@ export interface CostSimulationParams {
   marginPercent: number; // e.g. 15%
 }
 
+export interface FleetStandard {
+  id: 'FSK' | 'FUSO' | 'FUSO_ORI' | 'WINGBOX';
+  name: string;
+  minTons: number;
+  maxTons: number;
+  minKg: number;
+  maxKg: number;
+  label: string;
+  description: string;
+}
+
+export interface FleetTripCalculation {
+  fskTrips: number;
+  fusoTrips: number;
+  fusoOriTrips: number;
+  wingboxTrips: number;
+  fskMinTrips: number;
+  fskMaxTrips: number;
+  fusoMinTrips: number;
+  fusoMaxTrips: number;
+  fusoOriMinTrips: number;
+  fusoOriMaxTrips: number;
+  wingboxMinTrips: number;
+  wingboxMaxTrips: number;
+}
+
 export interface CostSimulationResult {
   totalGsm: number;
   paperCostPerM2: number;

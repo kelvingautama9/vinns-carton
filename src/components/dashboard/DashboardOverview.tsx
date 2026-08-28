@@ -120,7 +120,7 @@ export function DashboardOverview({ onSelectModule }: DashboardOverviewProps) {
           <ModuleCard
             title="Weight & Tonnage"
             code="WEIGHT.CALC"
-            desc="Analisis total tonase dan estimasi muatan truk logistik (CDE/CDD/Fuso)."
+            desc="Analisis total tonase dan estimasi muatan armada logistik pabrik (FSK / Fuso / Fuso Ori / Wingbox)."
             icon={Weight}
             onClick={() => onSelectModule('tonnage')}
           />

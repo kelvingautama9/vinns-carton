@@ -63,8 +63,8 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
   
   // 3. Conditional Sheet Formulas & Allowance (Lidah & Creasing)
   const [calcMode, setCalcMode] = useState<'FACTORY_EXCEL' | 'SYMMETRICAL' | 'CUSTOM'>('FACTORY_EXCEL');
-  const [customJointFlap, setCustomJointFlap] = useState<number>(54);
-  const [customCreaseAllowance, setCustomCreaseAllowance] = useState<number>(13);
+  const [customJointFlap, setCustomJointFlap] = useState<number>(44);
+  const [customCreaseAllowance, setCustomCreaseAllowance] = useState<number>(14);
 
   // 4. Substance / Paper Layers (Gramatur)
   const [substanceMode, setSubstanceMode] = useState<'CATALOG' | 'MANUAL_LAYERS'>('CATALOG');
@@ -94,14 +94,14 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
   // Effective Joint Flap (Lidah Lem)
   const effectiveJointFlap = useMemo(() => {
     if (calcMode === 'CUSTOM') return customJointFlap;
-    return FACTORY_JOINT_FLAPS[flute] || 54;
+    return FACTORY_JOINT_FLAPS[flute] || 44;
   }, [calcMode, customJointFlap, flute]);
 
   // Effective Crease Allowance
   const effectiveCreaseAllowance = useMemo(() => {
     if (calcMode === 'CUSTOM') return customCreaseAllowance;
     if (calcMode === 'SYMMETRICAL') return 0;
-    return FACTORY_CREASE_ALLOWANCES[flute] || 13;
+    return FACTORY_CREASE_ALLOWANCES[flute] || 14;
   }, [calcMode, customCreaseAllowance, flute]);
 
   // Calculate Box to Sheet result
@@ -422,7 +422,7 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
               <label className="text-xs font-bold text-slate-300 font-mono">Mode Rumus Sheet</label>
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { id: 'FACTORY_EXCEL', label: 'Standar Pabrik', sub: 'Excel (+50/+54 & +9/+13)' },
+                  { id: 'FACTORY_EXCEL', label: 'Standar Pabrik', sub: 'Excel (+44 & +14)' },
                   { id: 'SYMMETRICAL', label: 'Simetris Murni', sub: '2x(L/2) + T' },
                   { id: 'CUSTOM', label: 'Kustom Manual', sub: 'Input Bebas' },
                 ].map((mode) => (
@@ -466,7 +466,7 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
                   <span className="absolute right-3 top-2 text-[10px] text-muted-foreground font-mono">mm</span>
                 </div>
                 <span className="text-[9px] text-muted-foreground font-mono">
-                  {flute === 'C' ? 'Default C: +54mm' : flute === 'B' ? 'Default B: +50mm' : 'Default: +60mm'}
+                  {flute === 'C' ? 'Default C: +44mm' : flute === 'B' ? 'Default B: +40mm' : 'Default: +50mm'}
                 </span>
               </div>
 
@@ -489,7 +489,7 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
                   <span className="absolute right-3 top-2 text-[10px] text-muted-foreground font-mono">mm</span>
                 </div>
                 <span className="text-[9px] text-muted-foreground font-mono">
-                  {flute === 'C' ? 'Default C: +13mm' : flute === 'B' ? 'Default B: +9mm' : 'Default: +20mm'}
+                  {flute === 'C' ? 'Default C: +14mm' : flute === 'B' ? 'Default B: +10mm' : 'Default: +18mm'}
                 </span>
               </div>
             </div>

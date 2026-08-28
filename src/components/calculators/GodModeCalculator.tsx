@@ -5,6 +5,7 @@ import {
   calculateTonnage, 
   calculateWeightPerSheet, 
   calculateGrammage, 
+  calculateFleetTrips,
   formatCurrency, 
   formatNumber, 
   normalizeSubstance 
@@ -21,7 +22,8 @@ import {
   Share2, 
   ArrowRight,
   Sparkles,
-  Info
+  Info,
+  Truck
 } from 'lucide-react';
 
 const FLUTE_OPTIONS = ['B', 'C', 'BC', 'E'];
@@ -78,6 +80,7 @@ export function GodModeCalculator({ initialValues, onNavigate }: GodModeCalculat
 
     const totalGrossOrder = (priceRes?.grossPrice || 0) * qty;
     const totalNetOrder = (priceRes?.unitPrice || 0) * qty;
+    const fleet = calculateFleetTrips(totalTons);
 
     return {
       priceRes,
@@ -85,6 +88,7 @@ export function GodModeCalculator({ initialValues, onNavigate }: GodModeCalculat
       weightRes,
       totalTons,
       gsm,
+      fleet,
       totalGrossOrder,
       totalNetOrder,
       areaM2: weightRes.areaM2,
@@ -95,7 +99,7 @@ export function GodModeCalculator({ initialValues, onNavigate }: GodModeCalculat
   }, [panjang, lebar, substance, flute, diskon, quantity]);
 
   const handleCopyAll = () => {
-    const { priceRes, moqRes, weightGram, totalTons, gsm, areaM2, totalNetOrder } = results;
+    const { priceRes, moqRes, weightGram, totalTons, gsm, areaM2, totalNetOrder, fleet } = results;
     const priceText = priceRes ? formatCurrency(priceRes.unitPrice) : 'Tidak Terdaftar';
     const grossText = priceRes ? formatCurrency(priceRes.grossPrice) : '-';
 
@@ -114,6 +118,12 @@ export function GodModeCalculator({ initialValues, onNavigate }: GodModeCalculat
       `• Est. MOQ     : ${moqRes.moq.toLocaleString()} pcs (Out: ${moqRes.out} out)`,
       `• Berat Satuan : ${weightGram.toFixed(2)} gram / pcs`,
       `• Total Berat  : ${totalTons.toFixed(4)} TON (${results.totalWeightKg.toFixed(1)} kg)`,
+      ``,
+      `Estimasi Armada Pabrik:`,
+      `• FSK (1.8-2T)     : ${fleet.fskTrips} Rit`,
+      `• FUSO (2.1-2.5T)  : ${fleet.fusoTrips} Rit`,
+      `• FUSO ORI (2.5-3.4T): ${fleet.fusoOriTrips} Rit`,
+      `• WINGBOX (5-6.3T) : ${fleet.wingboxTrips} Rit`,
       `==============================================`,
     ].join('\n');
 
@@ -397,6 +407,63 @@ export function GodModeCalculator({ initialValues, onNavigate }: GodModeCalculat
               <p className="text-[11px] text-slate-400 font-sans">
                 Flute {flute} (Take-up factor: {flute === 'B' ? '1.35x' : flute === 'C' ? '1.43x' : '1.25x - 1.43x'})
               </p>
+            </div>
+          </div>
+
+          {/* Quick Factory Fleet Estimator Strip */}
+          <div className="p-4 rounded-2xl bg-black/40 border border-white/10 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Truck className="w-4 h-4 text-emerald-400" />
+                <span className="text-xs font-bold text-white font-mono uppercase tracking-wider">
+                  ESTIMASI ARMADA PABRIK
+                </span>
+              </div>
+              <span className="text-[10px] font-mono text-muted-foreground">
+                Total: <strong className="text-amber-400">{results.totalTons.toFixed(4)} Ton</strong>
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 space-y-0.5">
+                <div className="flex justify-between items-center text-[10px] text-amber-300 font-mono font-bold">
+                  <span>FSK</span>
+                  <span className="text-[9px] text-slate-400">1.8-2T</span>
+                </div>
+                <div className="text-base font-black text-white font-mono">
+                  {results.fleet.fskTrips} <span className="text-[10px] font-sans font-normal text-slate-400">Rit</span>
+                </div>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 space-y-0.5">
+                <div className="flex justify-between items-center text-[10px] text-emerald-300 font-mono font-bold">
+                  <span>FUSO</span>
+                  <span className="text-[9px] text-slate-400">2.1-2.5T</span>
+                </div>
+                <div className="text-base font-black text-white font-mono">
+                  {results.fleet.fusoTrips} <span className="text-[10px] font-sans font-normal text-slate-400">Rit</span>
+                </div>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 space-y-0.5">
+                <div className="flex justify-between items-center text-[10px] text-cyan-300 font-mono font-bold">
+                  <span>FUSO ORI</span>
+                  <span className="text-[9px] text-slate-400">2.5-3.4T</span>
+                </div>
+                <div className="text-base font-black text-white font-mono">
+                  {results.fleet.fusoOriTrips} <span className="text-[10px] font-sans font-normal text-slate-400">Rit</span>
+                </div>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 space-y-0.5">
+                <div className="flex justify-between items-center text-[10px] text-purple-300 font-mono font-bold">
+                  <span>WINGBOX</span>
+                  <span className="text-[9px] text-slate-400">5-6.3T</span>
+                </div>
+                <div className="text-base font-black text-white font-mono">
+                  {results.fleet.wingboxTrips} <span className="text-[10px] font-sans font-normal text-slate-400">Rit</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

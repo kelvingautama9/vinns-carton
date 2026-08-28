@@ -5,7 +5,9 @@ import {
   calculateWeightPerSheet, 
   calculateGrammage,
   normalizeSubstance,
-  formatNumber
+  formatNumber,
+  calculateFleetTrips,
+  FACTORY_FLEET_STANDARDS
 } from '../../lib/calculations';
 import { 
   Plus, 
@@ -125,22 +127,15 @@ export function TonnageCalculator({ initialRows }: TonnageCalculatorProps) {
       totalAreaM2 += r.areaM2 * (Number(r.quantity) || 0);
     });
 
-    // Logistic truck load recommendations
-    // CDE (Engkel ~2.2 Ton max)
-    const cdeTrips = Math.ceil(totalTons / 2.2) || 1;
-    // CDD (Double ~4.5 Ton max)
-    const cddTrips = Math.ceil(totalTons / 4.5) || 1;
-    // Fuso (~10 Ton max)
-    const fusoTrips = Math.ceil(totalTons / 10) || 1;
+    // Factory standard fleet trips calculation (FSK: 1.8-2T, FUSO: 2.1-2.5T, FUSO ORI: 2.5-3.4T, WINGBOX: 5-6.3T)
+    const fleet = calculateFleetTrips(totalTons);
 
     return {
       totalTons: Number(totalTons.toFixed(4)),
       totalKg: Number(totalKg.toFixed(1)),
       totalPcs,
       totalAreaM2: Number(totalAreaM2.toFixed(1)),
-      cdeTrips,
-      cddTrips,
-      fusoTrips,
+      fleet,
     };
   }, [computedRows]);
 
@@ -169,8 +164,13 @@ export function TonnageCalculator({ initialRows }: TonnageCalculatorProps) {
 
     lines.push(`-------------------------------------------`);
     lines.push(`GRAND TOTAL TONASE : ${summary.totalTons} TON (${summary.totalKg.toLocaleString()} kg)`);
-    lines.push(`TOTAL QUANTITY     : ${summary.totalPcs.toLocaleString()} pcs`);
-    lines.push(`ESTIMASI ARMADA    : CDE (${summary.cdeTrips} rit) / CDD (${summary.cddTrips} rit) / Fuso (${summary.fusoTrips} rit)`);
+    lines.push(`TOTAL QUANTITY     : ${summary.totalPcs.toLocaleString()} pcs (${summary.totalAreaM2} m²)`);
+    lines.push(``);
+    lines.push(`ESTIMASI DETAIL ARMADA PABRIK:`);
+    lines.push(`• FSK (1.8 - 2.0 T)     : ${summary.fleet.fskTrips} Rit`);
+    lines.push(`• FUSO (2.1 - 2.5 T)    : ${summary.fleet.fusoTrips} Rit`);
+    lines.push(`• FUSO ORI (2.5 - 3.4 T): ${summary.fleet.fusoOriTrips} Rit`);
+    lines.push(`• WINGBOX (5.0 - 6.3 T) : ${summary.fleet.wingboxTrips} Rit`);
     lines.push(`===========================================`);
 
     navigator.clipboard.writeText(lines.join('\n'));
@@ -410,62 +410,160 @@ export function TonnageCalculator({ initialRows }: TonnageCalculatorProps) {
         </div>
       </div>
 
-      {/* Summary & Fleet Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Grand Summary KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Total Tonase */}
-        <div className="glass-panel p-5 rounded-2xl border border-amber-500/30 bg-amber-500/5 space-y-1">
-          <div className="text-[10px] font-bold text-amber-400 uppercase tracking-widest font-mono">
-            GRAND TOTAL TONASE
+        <div className="glass-panel p-5 rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-slate-900/40 to-slate-950 space-y-1">
+          <div className="flex items-center justify-between">
+            <div className="text-[10px] font-bold text-amber-400 uppercase tracking-widest font-mono">
+              GRAND TOTAL TONASE ORDER
+            </div>
+            <Weight className="w-4 h-4 text-amber-400" />
           </div>
           <div className="text-3xl font-black text-amber-400 font-mono tracking-tight">
             {summary.totalTons}{' '}
             <span className="text-sm font-sans font-bold text-slate-300">TON</span>
           </div>
           <p className="text-[11px] text-slate-400 font-sans">
-            Setara dengan {summary.totalKg.toLocaleString()} kg muatan
+            Setara dengan <span className="font-bold text-slate-200 font-mono">{summary.totalKg.toLocaleString()} kg</span> total muatan
           </p>
         </div>
 
         {/* Total Quantity */}
-        <div className="glass-panel p-5 rounded-2xl border border-white/10 space-y-1">
-          <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest font-mono">
-            TOTAL KUANTITAS LEMBARAN
+        <div className="glass-panel p-5 rounded-2xl border border-white/10 bg-slate-900/40 space-y-1">
+          <div className="flex items-center justify-between">
+            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest font-mono">
+              TOTAL KUANTITAS LEMBARAN
+            </div>
+            <Layers className="w-4 h-4 text-cyan-400" />
           </div>
           <div className="text-3xl font-black text-white font-mono tracking-tight">
             {summary.totalPcs.toLocaleString()}{' '}
             <span className="text-sm font-sans font-bold text-muted-foreground">PCS</span>
           </div>
           <p className="text-[11px] text-slate-400 font-sans">
-            Total luas material: {summary.totalAreaM2} m²
+            Total luas lembaran material: <span className="font-bold text-slate-200 font-mono">{summary.totalAreaM2} m²</span>
           </p>
         </div>
+      </div>
 
-        {/* Truck CDE / CDD */}
-        <div className="glass-panel p-5 rounded-2xl border border-white/10 space-y-2">
-          <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest font-mono">
-            <span>ARMADA ENGKEL (CDE)</span>
-            <Truck className="w-4 h-4 text-amber-400" />
+      {/* Factory Fleet Standards Section (Standar Armada Pabrik) */}
+      <div className="glass-panel p-5 rounded-3xl border border-white/10 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-white/10">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
+              <Truck className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+                DETAIL ESTIMASI KEBUTUHAN ARMADA (STANDAR PABRIK)
+              </h3>
+              <p className="text-[11px] text-muted-foreground">
+                Kalkulasi ritase otomatis berdasarkan batas muatan aman tiap jenis truk armada pabrik.
+              </p>
+            </div>
           </div>
-          <div className="text-2xl font-black text-white font-mono">
-            {summary.cdeTrips}{' '}
-            <span className="text-xs font-sans text-muted-foreground font-medium">Rit / Truk</span>
-          </div>
-          <p className="text-[11px] text-slate-400 font-sans">Kapasitas beban aman maks ~2.2 Ton</p>
+          <span className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            4 KATEGORI ARMADA
+          </span>
         </div>
 
-        {/* Truck CDD / Fuso */}
-        <div className="glass-panel p-5 rounded-2xl border border-white/10 space-y-2">
-          <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest font-mono">
-            <span>ARMADA CDD / FUSO</span>
-            <Truck className="w-4 h-4 text-emerald-400" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          {/* 1. FSK (1.8 - 2.0 Ton) */}
+          <div className="p-4 rounded-2xl bg-black/40 border border-white/10 hover:border-amber-500/30 transition-all space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-black text-amber-400 font-mono tracking-wide">
+                ARMADA FSK
+              </span>
+              <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-400/10 text-amber-300 border border-amber-400/20">
+                1.8 - 2.0 TON
+              </span>
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-2xl font-black text-white font-mono">
+                {summary.fleet.fskMinTrips === summary.fleet.fskMaxTrips || summary.fleet.fskMinTrips === 0
+                  ? summary.fleet.fskTrips
+                  : `${summary.fleet.fskMinTrips} - ${summary.fleet.fskMaxTrips}`}
+              </span>
+              <span className="text-xs font-sans text-muted-foreground font-semibold">Rit / Truk</span>
+            </div>
+            <div className="text-[10px] text-slate-400 border-t border-white/5 pt-1.5 flex flex-col gap-0.5">
+              <span>Muatan: <strong className="text-slate-200 font-mono">1.800 - 2.000 kg</strong></span>
+              <span className="text-[9px] text-slate-500">Kapasitas beban aman FSK</span>
+            </div>
           </div>
-          <div className="text-2xl font-black text-emerald-400 font-mono">
-            {summary.cddTrips}{' '}
-            <span className="text-xs font-sans text-muted-foreground font-medium">CDD (4.5T)</span>{' '}
-            / {summary.fusoTrips}{' '}
-            <span className="text-xs font-sans text-muted-foreground font-medium">Fuso</span>
+
+          {/* 2. FUSO (2.1 - 2.5 Ton) */}
+          <div className="p-4 rounded-2xl bg-black/40 border border-white/10 hover:border-emerald-500/30 transition-all space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-black text-emerald-400 font-mono tracking-wide">
+                ARMADA FUSO
+              </span>
+              <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-400/10 text-emerald-300 border border-emerald-400/20">
+                2.1 - 2.5 TON
+              </span>
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-2xl font-black text-white font-mono">
+                {summary.fleet.fusoMinTrips === summary.fleet.fusoMaxTrips || summary.fleet.fusoMinTrips === 0
+                  ? summary.fleet.fusoTrips
+                  : `${summary.fleet.fusoMinTrips} - ${summary.fleet.fusoMaxTrips}`}
+              </span>
+              <span className="text-xs font-sans text-muted-foreground font-semibold">Rit / Truk</span>
+            </div>
+            <div className="text-[10px] text-slate-400 border-t border-white/5 pt-1.5 flex flex-col gap-0.5">
+              <span>Muatan: <strong className="text-slate-200 font-mono">2.100 - 2.500 kg</strong></span>
+              <span className="text-[9px] text-slate-500">Kapasitas standar Fuso</span>
+            </div>
           </div>
-          <p className="text-[11px] text-slate-400 font-sans">Estimasi efisiensi logistik pengiriman</p>
+
+          {/* 3. FUSO ORI (2.5 - 3.4 Ton) */}
+          <div className="p-4 rounded-2xl bg-black/40 border border-white/10 hover:border-cyan-500/30 transition-all space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-black text-cyan-400 font-mono tracking-wide">
+                ARMADA FUSO ORI
+              </span>
+              <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-cyan-400/10 text-cyan-300 border border-cyan-400/20">
+                2.5 - 3.4 TON
+              </span>
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-2xl font-black text-white font-mono">
+                {summary.fleet.fusoOriMinTrips === summary.fleet.fusoOriMaxTrips || summary.fleet.fusoOriMinTrips === 0
+                  ? summary.fleet.fusoOriTrips
+                  : `${summary.fleet.fusoOriMinTrips} - ${summary.fleet.fusoOriMaxTrips}`}
+              </span>
+              <span className="text-xs font-sans text-muted-foreground font-semibold">Rit / Truk</span>
+            </div>
+            <div className="text-[10px] text-slate-400 border-t border-white/5 pt-1.5 flex flex-col gap-0.5">
+              <span>Muatan: <strong className="text-slate-200 font-mono">2.500 - 3.400 kg</strong></span>
+              <span className="text-[9px] text-slate-500">Kapasitas muat Fuso Ori</span>
+            </div>
+          </div>
+
+          {/* 4. WINGBOX (5.0 - 6.3 Ton) */}
+          <div className="p-4 rounded-2xl bg-black/40 border border-white/10 hover:border-purple-500/30 transition-all space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-black text-purple-400 font-mono tracking-wide">
+                ARMADA WINGBOX
+              </span>
+              <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-purple-400/10 text-purple-300 border border-purple-400/20">
+                5.0 - 6.3 TON
+              </span>
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-2xl font-black text-white font-mono">
+                {summary.fleet.wingboxMinTrips === summary.fleet.wingboxMaxTrips || summary.fleet.wingboxMinTrips === 0
+                  ? summary.fleet.wingboxTrips
+                  : `${summary.fleet.wingboxMinTrips} - ${summary.fleet.wingboxMaxTrips}`}
+              </span>
+              <span className="text-xs font-sans text-muted-foreground font-semibold">Rit / Truk</span>
+            </div>
+            <div className="text-[10px] text-slate-400 border-t border-white/5 pt-1.5 flex flex-col gap-0.5">
+              <span>Muatan: <strong className="text-slate-200 font-mono">5.000 - 6.300 kg</strong></span>
+              <span className="text-[9px] text-slate-500">Kapasitas muat Wingbox besar</span>
+            </div>
+          </div>
         </div>
       </div>
 

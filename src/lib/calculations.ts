@@ -17,17 +17,17 @@ export const FLUTE_TAKEUP_FACTORS: Record<string, number> = {
 
 // Factory standard joint flap presets (mm)
 export const FACTORY_JOINT_FLAPS: Record<string, number> = {
-  'B': 50,
-  'C': 54,
-  'BC': 60,
-  'E': 40,
+  'B': 40,
+  'C': 44,
+  'BC': 50,
+  'E': 35,
 };
 
 // Factory standard creasing/flap allowances for Sheet Width (mm)
 export const FACTORY_CREASE_ALLOWANCES: Record<string, number> = {
-  'B': 9,
-  'C': 13,
-  'BC': 20,
+  'B': 10,
+  'C': 14,
+  'BC': 18,
   'E': 6,
 };
 
@@ -149,6 +149,112 @@ export const calculateTonnage = ({
   const weightPerSheetInKg = (grammage * areaInM2) / 1000;
   const totalWeightInKg = weightPerSheetInKg * quantity;
   return totalWeightInKg / 1000; // in tons
+};
+
+/**
+ * Factory Fleet Standards (Standar Armada Pabrik):
+ * - FSK: 1.8 Ton - 2 Ton (1.800 - 2.000 kg)
+ * - FUSO: 2.1 Ton - 2.5 Ton (2.100 - 2.500 kg)
+ * - FUSO ORI: 2.5 Ton - 3.4 Ton (2.500 - 3.400 kg)
+ * - WINGBOX: 5 Ton - 6.3 Ton (5.000 - 6.300 kg)
+ */
+export const FACTORY_FLEET_STANDARDS = {
+  FSK: {
+    id: 'FSK',
+    name: 'FSK',
+    minTons: 1.8,
+    maxTons: 2.0,
+    minKg: 1800,
+    maxKg: 2000,
+    label: '1.8 Ton - 2 Ton',
+    description: 'Armada FSK Pabrik (1.800 - 2.000 kg)',
+  },
+  FUSO: {
+    id: 'FUSO',
+    name: 'FUSO',
+    minTons: 2.1,
+    maxTons: 2.5,
+    minKg: 2100,
+    maxKg: 2500,
+    label: '2.1 Ton - 2.5 Ton',
+    description: 'Armada Fuso Standar (2.100 - 2.500 kg)',
+  },
+  FUSO_ORI: {
+    id: 'FUSO_ORI',
+    name: 'FUSO ORI',
+    minTons: 2.5,
+    maxTons: 3.4,
+    minKg: 2500,
+    maxKg: 3400,
+    label: '2.5 Ton - 3.4 Ton',
+    description: 'Armada Fuso Ori (2.500 - 3.400 kg)',
+  },
+  WINGBOX: {
+    id: 'WINGBOX',
+    name: 'WINGBOX',
+    minTons: 5.0,
+    maxTons: 6.3,
+    minKg: 5000,
+    maxKg: 6300,
+    label: '5 Ton - 6.3 Ton',
+    description: 'Armada Wingbox Kapasitas Besar (5.000 - 6.300 kg)',
+  },
+} as const;
+
+/**
+ * Calculates trip estimates for factory fleet standards
+ */
+export const calculateFleetTrips = (totalTons: number) => {
+  if (!totalTons || totalTons <= 0) {
+    return {
+      fskTrips: 0,
+      fusoTrips: 0,
+      fusoOriTrips: 0,
+      wingboxTrips: 0,
+      fskMinTrips: 0,
+      fskMaxTrips: 0,
+      fusoMinTrips: 0,
+      fusoMaxTrips: 0,
+      fusoOriMinTrips: 0,
+      fusoOriMaxTrips: 0,
+      wingboxMinTrips: 0,
+      wingboxMaxTrips: 0,
+    };
+  }
+
+  // Safe optimal trips (based on max safe capacity)
+  const fskTrips = Math.ceil(totalTons / FACTORY_FLEET_STANDARDS.FSK.maxTons);
+  const fusoTrips = Math.ceil(totalTons / FACTORY_FLEET_STANDARDS.FUSO.maxTons);
+  const fusoOriTrips = Math.ceil(totalTons / FACTORY_FLEET_STANDARDS.FUSO_ORI.maxTons);
+  const wingboxTrips = Math.ceil(totalTons / FACTORY_FLEET_STANDARDS.WINGBOX.maxTons);
+
+  // Conservative trips (based on min capacity)
+  const fskMinTrips = Math.ceil(totalTons / FACTORY_FLEET_STANDARDS.FSK.maxTons);
+  const fskMaxTrips = Math.ceil(totalTons / FACTORY_FLEET_STANDARDS.FSK.minTons);
+
+  const fusoMinTrips = Math.ceil(totalTons / FACTORY_FLEET_STANDARDS.FUSO.maxTons);
+  const fusoMaxTrips = Math.ceil(totalTons / FACTORY_FLEET_STANDARDS.FUSO.minTons);
+
+  const fusoOriMinTrips = Math.ceil(totalTons / FACTORY_FLEET_STANDARDS.FUSO_ORI.maxTons);
+  const fusoOriMaxTrips = Math.ceil(totalTons / FACTORY_FLEET_STANDARDS.FUSO_ORI.minTons);
+
+  const wingboxMinTrips = Math.ceil(totalTons / FACTORY_FLEET_STANDARDS.WINGBOX.maxTons);
+  const wingboxMaxTrips = Math.ceil(totalTons / FACTORY_FLEET_STANDARDS.WINGBOX.minTons);
+
+  return {
+    fskTrips,
+    fusoTrips,
+    fusoOriTrips,
+    wingboxTrips,
+    fskMinTrips,
+    fskMaxTrips,
+    fusoMinTrips,
+    fusoMaxTrips,
+    fusoOriMinTrips,
+    fusoOriMaxTrips,
+    wingboxMinTrips,
+    wingboxMaxTrips,
+  };
 };
 
 /**
@@ -279,11 +385,11 @@ export const calculateBoxToSheet = ({
   const T = Math.max(0, boxHeight);
   
   // 1. Determine effective Joint Flap (Lidah Lem)
-  const defaultFlap = FACTORY_JOINT_FLAPS[flute] || 50;
+  const defaultFlap = FACTORY_JOINT_FLAPS[flute] || 44;
   const flap = jointFlap !== undefined && !isNaN(jointFlap) ? Math.max(0, jointFlap) : defaultFlap;
 
   // 2. Determine effective Creasing/Flap Allowance (for sheet width)
-  const defaultAllowance = FACTORY_CREASE_ALLOWANCES[flute] || 9;
+  const defaultAllowance = FACTORY_CREASE_ALLOWANCES[flute] || 14;
   const allowance = creaseAllowance !== undefined && !isNaN(creaseAllowance) ? creaseAllowance : defaultAllowance;
 
   // 3. Determine Flute Factors
