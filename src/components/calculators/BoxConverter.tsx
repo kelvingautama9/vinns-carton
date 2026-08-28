@@ -172,7 +172,7 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
       `• Luas Sheet / Box  : ${result.sheetAreaM2.toFixed(6)} m² (SQM)`,
       ``,
       `⚖️ GRAMATUR & BERAT KARDUS (DESIMAL MURNI):`,
-      `• Total GSM Komposit: ${result.totalGsm.toFixed(2)} GSM`,
+      `• Total GSM Komposit: ${result.totalGsm.toFixed(2)} GSM (GSM : ${(result.totalGsm / 1000).toFixed(4)} kg)`,
       `• Berat per Box     : ${result.weightPerBoxKg.toFixed(5)} KG (${result.weightPerBoxGram.toFixed(2)} Gram)`,
       ``,
       `📊 SIMULASI BATCH (${batchQuantity.toLocaleString('id-ID')} PCS):`,
@@ -275,7 +275,8 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
                   type="number"
                   min="1"
                   value={boxLength || ''}
-                  onChange={(e) => setBoxLength(parseFloat(e.target.value) || 0)}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => setBoxLength(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                   className="w-full py-2.5 px-3 rounded-xl bloomberg-input text-sm font-mono font-black text-amber-300"
                   placeholder="346"
                 />
@@ -287,7 +288,8 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
                   type="number"
                   min="1"
                   value={boxWidth || ''}
-                  onChange={(e) => setBoxWidth(parseFloat(e.target.value) || 0)}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => setBoxWidth(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                   className="w-full py-2.5 px-3 rounded-xl bloomberg-input text-sm font-mono font-black text-amber-300"
                   placeholder="251"
                 />
@@ -299,7 +301,8 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
                   type="number"
                   min="1"
                   value={boxHeight || ''}
-                  onChange={(e) => setBoxHeight(parseFloat(e.target.value) || 0)}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => setBoxHeight(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                   className="w-full py-2.5 px-3 rounded-xl bloomberg-input text-sm font-mono font-black text-amber-300"
                   placeholder="115"
                 />
@@ -368,8 +371,9 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
                         <input
                           type="number"
                           step="0.01"
-                          value={customFluteFactor1}
-                          onChange={(e) => setCustomFluteFactor1(parseFloat(e.target.value) || 1.35)}
+                          value={customFluteFactor1 || ''}
+                          onFocus={(e) => e.target.select()}
+                          onChange={(e) => setCustomFluteFactor1(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                           className="w-full py-1.5 px-3 rounded-lg bloomberg-input text-xs font-mono font-bold text-amber-300"
                         />
                       </div>
@@ -378,8 +382,9 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
                         <input
                           type="number"
                           step="0.01"
-                          value={customFluteFactor2}
-                          onChange={(e) => setCustomFluteFactor2(parseFloat(e.target.value) || 1.43)}
+                          value={customFluteFactor2 || ''}
+                          onFocus={(e) => e.target.select()}
+                          onChange={(e) => setCustomFluteFactor2(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                           className="w-full py-1.5 px-3 rounded-lg bloomberg-input text-xs font-mono font-bold text-amber-300"
                         />
                       </div>
@@ -393,8 +398,9 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
                       <input
                         type="number"
                         step="0.01"
-                        value={customFluteFactor}
-                        onChange={(e) => setCustomFluteFactor(parseFloat(e.target.value) || 1.43)}
+                        value={customFluteFactor || ''}
+                        onFocus={(e) => e.target.select()}
+                        onChange={(e) => setCustomFluteFactor(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                         className="w-full py-2 px-3 rounded-lg bloomberg-input text-xs font-mono font-black text-amber-300"
                         placeholder="Contoh: 1.43 atau 1.35"
                       />
@@ -455,13 +461,15 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
                   <input
                     type="number"
                     disabled={calcMode !== 'CUSTOM'}
-                    value={effectiveJointFlap}
-                    onChange={(e) => setCustomJointFlap(parseFloat(e.target.value) || 0)}
+                    value={calcMode === 'CUSTOM' ? (customJointFlap || '') : effectiveJointFlap}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => setCustomJointFlap(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                     className={`w-full py-2 px-3 rounded-xl font-mono text-xs font-bold ${
                       calcMode === 'CUSTOM'
                         ? 'bloomberg-input text-amber-300'
                         : 'bg-black/40 text-slate-400 border border-white/5'
                     }`}
+                    placeholder="44"
                   />
                   <span className="absolute right-3 top-2 text-[10px] text-muted-foreground font-mono">mm</span>
                 </div>
@@ -478,13 +486,15 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
                   <input
                     type="number"
                     disabled={calcMode !== 'CUSTOM'}
-                    value={effectiveCreaseAllowance}
-                    onChange={(e) => setCustomCreaseAllowance(parseFloat(e.target.value) || 0)}
+                    value={calcMode === 'CUSTOM' ? (customCreaseAllowance || '') : effectiveCreaseAllowance}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => setCustomCreaseAllowance(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                     className={`w-full py-2 px-3 rounded-xl font-mono text-xs font-bold ${
                       calcMode === 'CUSTOM'
                         ? 'bloomberg-input text-amber-300'
                         : 'bg-black/40 text-slate-400 border border-white/5'
                     }`}
+                    placeholder="14"
                   />
                   <span className="absolute right-3 top-2 text-[10px] text-muted-foreground font-mono">mm</span>
                 </div>
@@ -552,8 +562,9 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
                     <span className="text-[10px] text-slate-300 font-mono font-bold">Top Liner</span>
                     <input
                       type="number"
-                      value={customTopLiner}
-                      onChange={(e) => setCustomTopLiner(parseFloat(e.target.value) || 0)}
+                      value={customTopLiner || ''}
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => setCustomTopLiner(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                       className="w-full py-1.5 px-2 rounded-lg bloomberg-input text-xs font-mono font-bold text-center"
                       placeholder="110"
                     />
@@ -562,8 +573,9 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
                     <span className="text-[10px] text-slate-300 font-mono font-bold">Flute Medium 1</span>
                     <input
                       type="number"
-                      value={customFlute1}
-                      onChange={(e) => setCustomFlute1(parseFloat(e.target.value) || 0)}
+                      value={customFlute1 || ''}
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => setCustomFlute1(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                       className="w-full py-1.5 px-2 rounded-lg bloomberg-input text-xs font-mono font-bold text-amber-300 text-center"
                       placeholder="125"
                     />
@@ -572,8 +584,9 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
                     <span className="text-[10px] text-slate-300 font-mono font-bold">Bottom Liner</span>
                     <input
                       type="number"
-                      value={customBottomLiner}
-                      onChange={(e) => setCustomBottomLiner(parseFloat(e.target.value) || 0)}
+                      value={customBottomLiner || ''}
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => setCustomBottomLiner(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                       className="w-full py-1.5 px-2 rounded-lg bloomberg-input text-xs font-mono font-bold text-center"
                       placeholder="110"
                     />
@@ -586,8 +599,9 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
                       <span className="text-[10px] text-slate-300 font-mono font-bold">Middle Liner</span>
                       <input
                         type="number"
-                        value={customMidLiner}
-                        onChange={(e) => setCustomMidLiner(parseFloat(e.target.value) || 0)}
+                        value={customMidLiner || ''}
+                        onFocus={(e) => e.target.select()}
+                        onChange={(e) => setCustomMidLiner(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                         className="w-full py-1.5 px-2 rounded-lg bloomberg-input text-xs font-mono font-bold text-center"
                         placeholder="125"
                       />
@@ -596,8 +610,9 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
                       <span className="text-[10px] text-slate-300 font-mono font-bold">Flute Medium 2</span>
                       <input
                         type="number"
-                        value={customFlute2}
-                        onChange={(e) => setCustomFlute2(parseFloat(e.target.value) || 0)}
+                        value={customFlute2 || ''}
+                        onFocus={(e) => e.target.select()}
+                        onChange={(e) => setCustomFlute2(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                         className="w-full py-1.5 px-2 rounded-lg bloomberg-input text-xs font-mono font-bold text-amber-300 text-center"
                         placeholder="125"
                       />
@@ -647,8 +662,8 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
                 <span className="text-xs font-black text-emerald-400 uppercase font-mono tracking-wider flex items-center gap-2">
                   <Scale className="w-4 h-4" /> BERAT PER BOX (WEIGHT)
                 </span>
-                <span className="text-[10px] text-slate-300 font-mono font-bold">
-                  {result.totalGsm.toFixed(2)} GSM
+                <span className="text-[10px] text-emerald-300 font-mono font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                  GSM : {(result.totalGsm / 1000).toFixed(4)} kg
                 </span>
               </div>
 
@@ -679,9 +694,11 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
                 <input
                   type="number"
                   min="1"
-                  value={batchQuantity}
-                  onChange={(e) => setBatchQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                  value={batchQuantity || ''}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => setBatchQuantity(e.target.value === '' ? 0 : parseInt(e.target.value) || 0)}
                   className="w-24 py-1 px-2 rounded-lg bloomberg-input text-xs font-mono font-black text-amber-300 text-center"
+                  placeholder="1000"
                 />
                 <span className="text-xs font-mono text-slate-300 font-bold">Pcs</span>
               </div>
@@ -738,8 +755,13 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
               </div>
 
               {/* Step 4: Total GSM */}
-              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                <span className="text-slate-400 font-bold">4. Total GSM (Desimal Murni):</span>
+              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-400 font-bold">4. Total GSM (Desimal Murni):</span>
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 text-[11px] font-bold border border-emerald-500/20 font-mono">
+                    GSM : {(result.totalGsm / 1000).toFixed(4)} kg
+                  </span>
+                </div>
                 <span className="text-emerald-300 font-black">{result.formulaBreakdown.gsmFormula}</span>
               </div>
 

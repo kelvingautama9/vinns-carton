@@ -498,11 +498,13 @@ export const calculateBoxToSheet = ({
 
     if (flute === 'BC' || fl2 > 0 || mid > 0) {
       totalGsm = top + fl1Eff + mid + fl2Eff + bot;
-      gsmFormula = `${top} + (${fl1} * ${factor1}) + ${mid} + (${fl2} * ${factor2}) + ${bot} = ${totalGsm.toFixed(2)} gsm`;
+      const gsmKg = (totalGsm / 1000).toFixed(4);
+      gsmFormula = `${top} + (${fl1} * ${factor1}) + ${mid} + (${fl2} * ${factor2}) + ${bot} = ${totalGsm.toFixed(2)} gsm → GSM : ${gsmKg} kg`;
       activeSubstance = `Custom DW (${top}/${fl1}/${mid}/${fl2}/${bot})`;
     } else {
       totalGsm = top + fl1Eff + bot;
-      gsmFormula = `${top} + (${fl1} * ${factor1}) + ${bot} = ${totalGsm.toFixed(2)} gsm`;
+      const gsmKg = (totalGsm / 1000).toFixed(4);
+      gsmFormula = `${top} + (${fl1} * ${factor1}) + ${bot} = ${totalGsm.toFixed(2)} gsm → GSM : ${gsmKg} kg`;
       activeSubstance = `Custom SW (${top}/${fl1}/${bot})`;
     }
   } else {
@@ -511,24 +513,28 @@ export const calculateBoxToSheet = ({
       const [l1, fl, l2] = weights;
       const flEff = fl * factor1;
       totalGsm = l1 + flEff + l2;
-      gsmFormula = `${l1} + (${fl} * ${factor1}) + ${l2} = ${l1} + ${flEff} + ${l2} = ${totalGsm.toFixed(2)} gsm`;
+      const gsmKg = (totalGsm / 1000).toFixed(4);
+      gsmFormula = `${l1} + (${fl} * ${factor1}) + ${l2} = ${totalGsm.toFixed(2)} gsm → GSM : ${gsmKg} kg`;
     } else if (weights.length === 5) {
       const [l1, fl1, l2, fl2, l3] = weights;
       const fl1Eff = fl1 * factor1;
       const fl2Eff = fl2 * factor2;
       totalGsm = l1 + fl1Eff + l2 + fl2Eff + l3;
-      gsmFormula = `${l1} + (${fl1} * ${factor1}) + ${l2} + (${fl2} * ${factor2}) + ${l3} = ${totalGsm.toFixed(2)} gsm`;
+      const gsmKg = (totalGsm / 1000).toFixed(4);
+      gsmFormula = `${l1} + (${fl1} * ${factor1}) + ${l2} + (${fl2} * ${factor2}) + ${l3} = ${totalGsm.toFixed(2)} gsm → GSM : ${gsmKg} kg`;
     } else {
       totalGsm = calculateGrammage(activeSubstance, flute, factor1, { bFactor: factor1, cFactor: factor2 });
-      gsmFormula = `Gramatur ${activeSubstance} = ${totalGsm.toFixed(2)} gsm`;
+      const gsmKg = (totalGsm / 1000).toFixed(4);
+      gsmFormula = `Gramatur ${activeSubstance} = ${totalGsm.toFixed(2)} gsm → GSM : ${gsmKg} kg`;
     }
   }
 
   // 7. Calculate Weight per Box (KG & Gram)
-  // Weight (KG) = (Total GSM * SQM) / 1000 = (Total GSM * P * L) / 1.000.000.000
+  // Weight (KG) = (Total GSM * SQM) / 1000 = (Total GSM in KG * SQM)
   const weightPerBoxKg = (totalGsm * sheetAreaM2) / 1000;
   const weightPerBoxGram = totalGsm * sheetAreaM2;
-  const weightFormula = `(${totalGsm.toFixed(2)} * ${sheetAreaM2.toFixed(6)}) / 1.000 = ${weightPerBoxKg.toFixed(5)} kg (${weightPerBoxGram.toFixed(2)} g)`;
+  const gsmInKg = (totalGsm / 1000).toFixed(4);
+  const weightFormula = `(GSM: ${gsmInKg} kg * Luas: ${sheetAreaM2.toFixed(6)} m²) = ${weightPerBoxKg.toFixed(5)} kg (${weightPerBoxGram.toFixed(2)} g)`;
 
   return {
     sheetLength,

@@ -202,8 +202,10 @@ export function CostSimulator({ onSendToPriceCalc }: CostSimulatorProps) {
                   type="number"
                   min="1"
                   value={panjang || ''}
-                  onChange={(e) => setPanjang(parseFloat(e.target.value) || 0)}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => setPanjang(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                   className="w-full py-2 px-3 rounded-xl bloomberg-input text-xs font-mono font-bold text-amber-300"
+                  placeholder="1000"
                 />
               </div>
 
@@ -213,8 +215,10 @@ export function CostSimulator({ onSendToPriceCalc }: CostSimulatorProps) {
                   type="number"
                   min="1"
                   value={lebar || ''}
-                  onChange={(e) => setLebar(parseFloat(e.target.value) || 0)}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => setLebar(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                   className="w-full py-2 px-3 rounded-xl bloomberg-input text-xs font-mono font-bold text-amber-300"
+                  placeholder="800"
                 />
               </div>
 
@@ -238,8 +242,10 @@ export function CostSimulator({ onSendToPriceCalc }: CostSimulatorProps) {
                   type="number"
                   min="1"
                   value={quantity || ''}
-                  onChange={(e) => setQuantity(parseFloat(e.target.value) || 1)}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => setQuantity(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                   className="w-full py-2 px-3 rounded-xl bloomberg-input text-xs font-mono font-bold text-emerald-400"
+                  placeholder="2000"
                 />
               </div>
             </div>
@@ -290,8 +296,9 @@ export function CostSimulator({ onSendToPriceCalc }: CostSimulatorProps) {
                   <div className="w-20">
                     <input
                       type="number"
-                      value={layer.gsm}
-                      onChange={(e) => updateLayer(idx, 'gsm', parseFloat(e.target.value) || 0)}
+                      value={layer.gsm || ''}
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => updateLayer(idx, 'gsm', e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                       className="w-full py-1.5 px-2 rounded-lg bloomberg-input text-xs text-center font-bold"
                       placeholder="GSM"
                     />
@@ -301,8 +308,9 @@ export function CostSimulator({ onSendToPriceCalc }: CostSimulatorProps) {
                   <div className="w-32">
                     <input
                       type="number"
-                      value={layer.pricePerKg}
-                      onChange={(e) => updateLayer(idx, 'pricePerKg', parseFloat(e.target.value) || 0)}
+                      value={layer.pricePerKg || ''}
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => updateLayer(idx, 'pricePerKg', e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                       className="w-full py-1.5 px-2 rounded-lg bloomberg-input text-xs font-bold text-amber-300 text-right"
                       placeholder="Rp/kg"
                     />
@@ -331,9 +339,11 @@ export function CostSimulator({ onSendToPriceCalc }: CostSimulatorProps) {
                 <label className="text-xs font-bold text-slate-300 font-mono">Biaya Lem / m²</label>
                 <input
                   type="number"
-                  value={glueCostPerM2}
-                  onChange={(e) => setGlueCostPerM2(parseFloat(e.target.value) || 0)}
+                  value={glueCostPerM2 || ''}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => setGlueCostPerM2(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                   className="w-full py-2 px-3 rounded-xl bloomberg-input text-xs font-mono font-bold"
+                  placeholder="250"
                 />
               </div>
 
@@ -341,9 +351,11 @@ export function CostSimulator({ onSendToPriceCalc }: CostSimulatorProps) {
                 <label className="text-xs font-bold text-slate-300 font-mono">Ongkos Mesin / m²</label>
                 <input
                   type="number"
-                  value={convertingCostPerM2}
-                  onChange={(e) => setConvertingCostPerM2(parseFloat(e.target.value) || 0)}
+                  value={convertingCostPerM2 || ''}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => setConvertingCostPerM2(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                   className="w-full py-2 px-3 rounded-xl bloomberg-input text-xs font-mono font-bold"
+                  placeholder="550"
                 />
               </div>
 
@@ -351,9 +363,11 @@ export function CostSimulator({ onSendToPriceCalc }: CostSimulatorProps) {
                 <label className="text-xs font-bold text-slate-300 font-mono">Waste (%)</label>
                 <input
                   type="number"
-                  value={wastePercent}
-                  onChange={(e) => setWastePercent(parseFloat(e.target.value) || 0)}
+                  value={wastePercent || ''}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => setWastePercent(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                   className="w-full py-2 px-3 rounded-xl bloomberg-input text-xs font-mono font-bold text-center"
+                  placeholder="5"
                 />
               </div>
 
@@ -361,9 +375,11 @@ export function CostSimulator({ onSendToPriceCalc }: CostSimulatorProps) {
                 <label className="text-xs font-bold text-slate-300 font-mono">Target Margin (%)</label>
                 <input
                   type="number"
-                  value={marginPercent}
-                  onChange={(e) => setMarginPercent(parseFloat(e.target.value) || 0)}
+                  value={marginPercent || ''}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => setMarginPercent(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                   className="w-full py-2 px-3 rounded-xl bloomberg-input text-xs font-mono font-bold text-amber-400 text-center"
+                  placeholder="18"
                 />
               </div>
             </div>

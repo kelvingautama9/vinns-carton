@@ -201,7 +201,8 @@ export function MoqCalculator({ initialRows }: MoqCalculatorProps) {
                       type="number"
                       min="1"
                       value={row.panjang || ''}
-                      onChange={(e) => updateRow(idx, 'panjang', parseFloat(e.target.value) || 0)}
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => updateRow(idx, 'panjang', e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                       className="w-full py-1.5 px-2.5 rounded-lg bloomberg-input text-xs font-mono font-bold"
                       placeholder="Panjang"
                     />
@@ -213,7 +214,8 @@ export function MoqCalculator({ initialRows }: MoqCalculatorProps) {
                       type="number"
                       min="1"
                       value={row.lebar || ''}
-                      onChange={(e) => updateRow(idx, 'lebar', parseFloat(e.target.value) || 0)}
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => updateRow(idx, 'lebar', e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                       className="w-full py-1.5 px-2.5 rounded-lg bloomberg-input text-xs font-mono font-bold"
                       placeholder="Lebar"
                     />

@@ -181,7 +181,8 @@ export function GodModeCalculator({ initialValues, onNavigate }: GodModeCalculat
                   type="number"
                   min="1"
                   value={panjang || ''}
-                  onChange={(e) => setPanjang(parseFloat(e.target.value) || 0)}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => setPanjang(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                   className="w-full py-2.5 px-3 rounded-xl bloomberg-input text-sm font-mono font-black text-amber-300"
                   placeholder="Panjang"
                 />
@@ -193,7 +194,8 @@ export function GodModeCalculator({ initialValues, onNavigate }: GodModeCalculat
                   type="number"
                   min="1"
                   value={lebar || ''}
-                  onChange={(e) => setLebar(parseFloat(e.target.value) || 0)}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => setLebar(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                   className="w-full py-2.5 px-3 rounded-xl bloomberg-input text-sm font-mono font-black text-amber-300"
                   placeholder="Lebar"
                 />
@@ -258,8 +260,9 @@ export function GodModeCalculator({ initialValues, onNavigate }: GodModeCalculat
                   type="number"
                   min="0"
                   max="100"
-                  value={diskon || 0}
-                  onChange={(e) => setDiskon(parseFloat(e.target.value) || 0)}
+                  value={diskon || ''}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => setDiskon(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                   className="w-full py-2.5 px-3 rounded-xl bloomberg-input text-sm font-mono text-center"
                   placeholder="0"
                 />
@@ -271,7 +274,8 @@ export function GodModeCalculator({ initialValues, onNavigate }: GodModeCalculat
                   type="number"
                   min="1"
                   value={quantity || ''}
-                  onChange={(e) => setQuantity(parseFloat(e.target.value) || 1)}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => setQuantity(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                   className="w-full py-2.5 px-3 rounded-xl bloomberg-input text-sm font-mono font-bold text-emerald-400 text-right"
                   placeholder="2500"
                 />

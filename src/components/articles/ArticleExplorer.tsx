@@ -165,6 +165,7 @@ export function ArticleExplorer({ onUseArticle }: ArticleExplorerProps) {
                 type="text"
                 placeholder="Cari ID, Ukuran, Substance..."
                 value={filter}
+                onFocus={(e) => e.target.select()}
                 onChange={(e) => setFilter(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 text-xs bloomberg-input rounded-xl font-mono"
               />

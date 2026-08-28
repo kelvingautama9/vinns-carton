@@ -2,5 +2,7 @@
   "name": "Vinns Carton Sheet Calculator",
   "description": "Professional Corrugated Carton Sheet & Box Calculator with Price, MOQ, Tonnage, Box Dimension to Sheet Converter, and Custom Cost Simulator.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }
