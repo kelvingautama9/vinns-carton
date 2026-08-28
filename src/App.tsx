@@ -9,6 +9,7 @@ import { TonnageCalculator } from './components/calculators/TonnageCalculator';
 import { GodModeCalculator } from './components/calculators/GodModeCalculator';
 import { BoxConverter } from './components/calculators/BoxConverter';
 import { CostSimulator } from './components/calculators/CostSimulator';
+import { ThemeProvider } from './context/ThemeContext';
 import { Article, PriceRow, TonnageRow } from './types';
 import { Menu, X, Box } from 'lucide-react';
 
@@ -100,109 +101,114 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#030712] text-slate-100 font-sans">
-      {/* Desktop Sidebar */}
-      <div className="hidden lg:block h-full">
-        <SidebarNav activeTab={activeTab} onTabChange={setActiveTab} />
-      </div>
-
-      {/* Mobile Drawer */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden flex">
-          <div
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm"
-            onClick={() => setMobileMenuOpen(false)}
-          />
-          <div className="relative z-10 w-72 h-full bg-[#080d1a] border-r border-white/10 shadow-2xl">
-            <div className="flex items-center justify-between p-4 border-b border-white/10">
-              <div className="flex items-center gap-2">
-                <Box className="w-5 h-5 text-amber-400" />
-                <span className="font-black text-white font-mono">VINNS CARTON</span>
-              </div>
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white bg-white/5"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <SidebarNav
-              activeTab={activeTab}
-              onTabChange={(tab) => {
-                setActiveTab(tab);
-                setMobileMenuOpen(false);
-              }}
-            />
-          </div>
+    <ThemeProvider>
+      <div className="flex h-screen w-screen overflow-hidden bg-[var(--bg-main)] text-[var(--text-main)] font-sans antialiased">
+        {/* Desktop Sidebar */}
+        <div className="hidden lg:block h-full shrink-0">
+          <SidebarNav activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
-      )}
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden">
-        {/* Top Header */}
-        <div className="relative">
-          {/* Mobile hamburger button */}
-          <div className="lg:hidden flex items-center justify-between p-4 border-b border-white/10 bg-[#080d1a]">
+        {/* Mobile Drawer */}
+        {mobileMenuOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden flex">
+            <div
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <div className="relative z-10 w-72 max-w-[85vw] h-full bg-[var(--bg-sidebar)] border-r border-white/10 shadow-2xl flex flex-col">
+              <div className="flex items-center justify-between p-3.5 border-b border-white/10">
+                <div className="flex items-center gap-2">
+                  <Box className="w-5 h-5 text-amber-400" />
+                  <span className="font-black text-white font-mono text-sm">VINNS CARTON</span>
+                </div>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-white bg-white/5"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <SidebarNav
+                  activeTab={activeTab}
+                  onTabChange={(tab) => {
+                    setActiveTab(tab);
+                    setMobileMenuOpen(false);
+                  }}
+                  onCloseMobile={() => setMobileMenuOpen(false)}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
+          {/* Top Mobile Bar */}
+          <div className="lg:hidden flex items-center justify-between px-3 py-2 border-b border-white/10 bg-[var(--bg-sidebar)]">
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-mono font-bold text-amber-400"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-mono font-bold text-amber-400"
             >
               <Menu className="w-4 h-4" />
               <span>MENU</span>
             </button>
-            <div className="text-xs font-black font-mono text-white tracking-wider">
-              VINNS CARTON CALC
+            <div className="text-xs font-black font-mono tracking-wider">
+              VINNS CARTON
             </div>
           </div>
+
           <Header activeTab={activeTab} onTabChange={setActiveTab} />
+
+          {/* Scrollable Viewport - Ultra Responsive Container */}
+          <main className="flex-1 overflow-y-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 bg-[var(--bg-main)]">
+            <div className="max-w-[1600px] mx-auto w-full">
+              {activeTab === 'dashboard' && (
+                <DashboardOverview onSelectModule={setActiveTab} />
+              )}
+
+              {activeTab === 'articles' && (
+                <ArticleExplorer onUseArticle={handleUseArticle} />
+              )}
+
+              {activeTab === 'price' && (
+                <PriceCalculator
+                  key={JSON.stringify(passedPriceRows)}
+                  initialRows={passedPriceRows}
+                />
+              )}
+
+              {activeTab === 'moq' && <MoqCalculator />}
+
+              {activeTab === 'tonnage' && (
+                <TonnageCalculator
+                  key={JSON.stringify(passedTonnageRows)}
+                  initialRows={passedTonnageRows}
+                />
+              )}
+
+              {activeTab === 'god-mode' && (
+                <GodModeCalculator
+                  key={JSON.stringify(passedGodModeValues)}
+                  initialValues={passedGodModeValues}
+                  onNavigate={setActiveTab}
+                />
+              )}
+
+              {activeTab === 'box-converter' && (
+                <BoxConverter
+                  onSendToPriceCalc={handleBoxToPrice}
+                  onSendToGodMode={handleBoxToGodMode}
+                />
+              )}
+
+              {activeTab === 'cost-simulator' && (
+                <CostSimulator />
+              )}
+            </div>
+          </main>
         </div>
-
-        {/* Scrollable Viewport */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-[#030712]">
-          {activeTab === 'dashboard' && (
-            <DashboardOverview onSelectModule={setActiveTab} />
-          )}
-
-          {activeTab === 'articles' && (
-            <ArticleExplorer onUseArticle={handleUseArticle} />
-          )}
-
-          {activeTab === 'price' && (
-            <PriceCalculator
-              key={JSON.stringify(passedPriceRows)}
-              initialRows={passedPriceRows}
-            />
-          )}
-
-          {activeTab === 'moq' && <MoqCalculator />}
-
-          {activeTab === 'tonnage' && (
-            <TonnageCalculator
-              key={JSON.stringify(passedTonnageRows)}
-              initialRows={passedTonnageRows}
-            />
-          )}
-
-          {activeTab === 'god-mode' && (
-            <GodModeCalculator
-              key={JSON.stringify(passedGodModeValues)}
-              initialValues={passedGodModeValues}
-              onNavigate={setActiveTab}
-            />
-          )}
-
-          {activeTab === 'box-converter' && (
-            <BoxConverter
-              onSendToPriceCalc={handleBoxToPrice}
-              onSendToGodMode={handleBoxToGodMode}
-            />
-          )}
-
-          {activeTab === 'cost-simulator' && (
-            <CostSimulator />
-          )}
-        </main>
       </div>
-    </div>
+    </ThemeProvider>
   );
 }

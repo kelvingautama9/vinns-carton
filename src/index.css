@@ -2,96 +2,136 @@
 
 @layer base {
   :root {
-    --background: 224 71% 4%;
-    --foreground: 213 31% 91%;
-    --card: 224 71% 5%;
-    --card-foreground: 213 31% 91%;
-    --popover: 224 71% 5%;
-    --popover-foreground: 213 31% 91%;
-    --primary: 43 96% 56%; /* Amber/Gold Bloomberg Accent */
-    --primary-foreground: 224 71% 4%;
-    --secondary: 222 47% 11%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 223 47% 11%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 43 96% 56%;
-    --accent-foreground: 224 71% 4%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 216 34% 17%;
-    --input: 216 34% 17%;
-    --ring: 43 96% 56%;
-    --radius: 0.75rem;
+    --bg-main: #030712;
+    --bg-sidebar: #080d1a;
+    --bg-header: rgba(8, 13, 26, 0.85);
+    --bg-panel: rgba(17, 24, 39, 0.75);
+    --bg-panel-solid: #0f172a;
+    --bg-input: rgba(15, 23, 42, 0.7);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --text-accent: #fbbf24;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --accent-color: #f59e0b;
+    --accent-btn-bg: #f59e0b;
+    --accent-btn-text: #000000;
+  }
+
+  /* 1. LIQUID GLASS (iOS 18+ Inspired Frosted Dynamic Blur) */
+  html.theme-liquid-glass {
+    --bg-main: #0a0e1a;
+    --bg-sidebar: rgba(15, 23, 42, 0.65);
+    --bg-header: rgba(15, 23, 42, 0.6);
+    --bg-panel: rgba(30, 41, 59, 0.45);
+    --bg-panel-solid: rgba(30, 41, 59, 0.75);
+    --bg-input: rgba(15, 23, 42, 0.5);
+    --text-main: #ffffff;
+    --text-muted: #cbd5e1;
+    --text-accent: #38bdf8;
+    --border-color: rgba(255, 255, 255, 0.18);
+    --accent-color: #38bdf8;
+    --accent-btn-bg: #38bdf8;
+    --accent-btn-text: #041320;
+  }
+
+  /* 2. LIGHT WHITE (Clean High-Contrast Modern Minimalist) */
+  html.theme-light-white {
+    --bg-main: #f8fafc;
+    --bg-sidebar: #ffffff;
+    --bg-header: rgba(255, 255, 255, 0.9);
+    --bg-panel: rgba(255, 255, 255, 0.95);
+    --bg-panel-solid: #ffffff;
+    --bg-input: #f1f5f9;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --text-accent: #d97706;
+    --border-color: #e2e8f0;
+    --accent-color: #f59e0b;
+    --accent-btn-bg: #0f172a;
+    --accent-btn-text: #ffffff;
+  }
+
+  /* 3. BEIGE (Warm Organic Nordic Editorial) */
+  html.theme-beige {
+    --bg-main: #f5f0e8;
+    --bg-sidebar: #eae3d2;
+    --bg-header: rgba(234, 227, 210, 0.9);
+    --bg-panel: #fcf9f2;
+    --bg-panel-solid: #ffffff;
+    --bg-input: #eee7d7;
+    --text-main: #292524;
+    --text-muted: #78716c;
+    --text-accent: #b45309;
+    --border-color: #d6ccb8;
+    --accent-color: #c2410c;
+    --accent-btn-bg: #292524;
+    --accent-btn-text: #fdfbf7;
   }
 }
 
 body {
-  background-color: #0b0f19;
-  color: #f1f5f9;
+  background-color: var(--bg-main);
+  color: var(--text-main);
   font-feature-settings: "rlig" 1, "calt" 1;
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Bloomberg Terminal & Industrial Glass Panels */
+/* Glass Panels Dynamic Adapters */
 .glass-panel {
-  background: rgba(17, 24, 39, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.glass-panel-glow {
-  background: rgba(17, 24, 39, 0.75);
+  background: var(--bg-panel);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(245, 158, 11, 0.25);
-  box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.1);
+  border: 1px solid var(--border-color);
+  transition: all 0.25s ease;
+}
+
+.glass-panel-solid {
+  background: var(--bg-panel-solid);
+  border: 1px solid var(--border-color);
 }
 
 .bloomberg-input {
-  background-color: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #f8fafc;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .bloomberg-input:focus {
-  border-color: #f59e0b;
-  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
   outline: none;
-  background-color: rgba(15, 23, 42, 0.9);
 }
 
-/* Custom scrollbars */
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.5);
+  background: var(--bg-main);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(245, 158, 11, 0.25);
+  background: var(--border-color);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(245, 158, 11, 0.5);
+  background: var(--accent-color);
 }
 
-/* Animations */
-@keyframes floatSlow {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
+/* Liquid Glass Theme enhancements */
+html.theme-liquid-glass .glass-panel {
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  border: 1px solid rgba(255, 255, 255, 0.16);
 }
 
-.animate-float {
-  animation: floatSlow 4s ease-in-out infinite;
+html.theme-liquid-glass body {
+  background-image: radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
+                    radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.08) 0px, transparent 50%);
+  background-attachment: fixed;
 }

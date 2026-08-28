@@ -8,11 +8,12 @@ import {
   Box, 
   Cpu, 
   ArrowRight, 
-  Zap, 
   Layers, 
-  TrendingUp, 
   CheckCircle2,
-  Sparkles
+  ExternalLink,
+  Linkedin,
+  Instagram,
+  Github
 } from 'lucide-react';
 
 interface DashboardOverviewProps {
@@ -21,79 +22,106 @@ interface DashboardOverviewProps {
 
 export function DashboardOverview({ onSelectModule }: DashboardOverviewProps) {
   return (
-    <div className="space-y-10 max-w-7xl mx-auto animate-in fade-in duration-500">
-      {/* Hero Banner */}
-      <div className="relative overflow-hidden rounded-3xl glass-panel p-8 md:p-12 border border-amber-500/20 bg-gradient-to-br from-amber-500/10 via-slate-900/50 to-slate-950">
-        <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
-          <div className="space-y-5 max-w-2xl text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold tracking-widest uppercase font-mono">
-              <Zap className="w-3.5 h-3.5" /> High-Performance Carton Engine
-            </div>
-            
-            <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white font-mono leading-none">
-              VINNS <span className="text-amber-400">CARTON</span><br />
-              <span className="text-slate-200">CALCULATOR PRO</span>
+    <div className="space-y-6 max-w-7xl mx-auto w-full">
+      {/* Top Compact Hero Banner */}
+      <div className="relative overflow-hidden rounded-2xl glass-panel p-5 sm:p-7 border border-amber-500/20 bg-gradient-to-br from-amber-500/10 via-slate-900/40 to-transparent">
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="space-y-3 max-w-2xl text-left">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight font-mono text-white">
+              VINNS <span className="text-amber-400">CARTON</span> CALC
             </h1>
 
-            <p className="text-slate-300 text-sm md:text-base leading-relaxed font-sans">
-              Solusi perhitungan presisi tinggi untuk industri kemasan karton box (Corrugated Carton Sheet). 
-              Mendukung kalkulasi harga instan, MOQ corrugator, tonase logistik, konversi dimensi box 3D ke sheet blank, serta simulasi biaya custom paper.
-            </p>
+            {/* Social Contact Links */}
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <span className="text-xs text-muted-foreground font-mono font-medium mr-1">Contact:</span>
+              
+              <a
+                href="https://www.linkedin.com/in/kelvin-vinns"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 border border-blue-500/30 text-xs font-mono font-semibold transition-all hover:scale-105"
+              >
+                <Linkedin className="w-3.5 h-3.5" />
+                <span>LinkedIn</span>
+                <ExternalLink className="w-3 h-3 opacity-60" />
+              </a>
 
-            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <a
+                href="https://www.instagram.com/kelvingautama9"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-pink-600/10 hover:bg-pink-600/20 text-pink-400 border border-pink-500/30 text-xs font-mono font-semibold transition-all hover:scale-105"
+              >
+                <Instagram className="w-3.5 h-3.5" />
+                <span>Instagram</span>
+                <ExternalLink className="w-3 h-3 opacity-60" />
+              </a>
+
+              <a
+                href="https://github.com/kelvingautama9"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-500/10 hover:bg-slate-500/20 text-slate-200 border border-slate-400/30 text-xs font-mono font-semibold transition-all hover:scale-105"
+              >
+                <Github className="w-3.5 h-3.5" />
+                <span>GitHub</span>
+                <ExternalLink className="w-3 h-3 opacity-60" />
+              </a>
+            </div>
+
+            {/* Quick Action Shortcuts */}
+            <div className="flex flex-wrap items-center gap-2.5 pt-2">
               <button
                 onClick={() => onSelectModule('price')}
-                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs tracking-wider uppercase font-mono shadow-lg shadow-amber-500/25 transition-all"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase font-mono shadow-md shadow-amber-500/20 transition-all"
               >
-                <Calculator className="w-4 h-4" /> Buka Price Calc
+                <Calculator className="w-3.5 h-3.5" /> Price Calc
               </button>
               <button
                 onClick={() => onSelectModule('box-converter')}
-                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-xs tracking-wider uppercase font-mono border border-amber-500/30 transition-all"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-xs uppercase font-mono border border-amber-500/30 transition-all"
               >
-                <Box className="w-4 h-4 text-amber-400" /> Box to Sheet Conv
+                <Box className="w-3.5 h-3.5 text-amber-400" /> Box to Sheet
               </button>
               <button
                 onClick={() => onSelectModule('cost-simulator')}
-                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-xs tracking-wider uppercase font-mono border border-white/10 transition-all"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-xs uppercase font-mono border border-white/10 transition-all"
               >
-                <Cpu className="w-4 h-4 text-amber-400" /> Custom Cost Sim
+                <Cpu className="w-3.5 h-3.5 text-amber-400" /> Cost Sim
               </button>
             </div>
           </div>
 
-          <div className="hidden lg:flex flex-col items-center justify-center p-8 rounded-2xl glass-panel border border-amber-500/30 bg-black/40 text-center w-72 space-y-4">
-            <div className="p-4 bg-amber-500/10 rounded-2xl text-amber-400 border border-amber-500/20">
-              <Layers className="w-12 h-12" />
+          {/* Mini Counter Stats */}
+          <div className="flex sm:flex-row md:flex-col items-center gap-4 p-4 rounded-xl glass-panel border border-white/10 bg-black/30 w-full sm:w-auto min-w-[180px] justify-around">
+            <div className="text-center">
+              <div className="text-2xl font-black text-white font-mono">194+</div>
+              <div className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Substances</div>
             </div>
-            <div>
-              <div className="text-3xl font-black text-white font-mono">194+</div>
-              <div className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Substance Pricelist</div>
-            </div>
-            <div className="w-full h-px bg-white/10" />
-            <div>
+            <div className="hidden sm:block w-px md:w-full md:h-px bg-white/10" />
+            <div className="text-center">
               <div className="text-2xl font-black text-amber-400 font-mono">331</div>
-              <div className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Artikel Terdaftar</div>
+              <div className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Artikel</div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Primary Modules Grid */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-white font-mono tracking-wider flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-400" /> SEMUA MODUL KALKULATOR
+      {/* Modules Grid */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-sm font-bold text-white font-mono tracking-wider flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-amber-400" /> MODUL KALKULASI
           </h2>
-          <span className="text-xs text-muted-foreground font-mono">8 Modul Aktif</span>
+          <span className="text-xs text-muted-foreground font-mono">8 Modul Siap Pakai</span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-4 gap-3.5 sm:gap-4">
           {/* 1. Articles */}
           <ModuleCard
             title="Dataset Explorer"
             code="DATASET"
-            desc="Katalog spesifikasi ribuan artikel karton lengkap dengan dimensi PxL dan substance."
+            desc="Katalog spesifikasi 331+ artikel karton lengkap dengan dimensi PxL dan substance."
             icon={Table}
             onClick={() => onSelectModule('articles')}
           />
@@ -102,7 +130,7 @@ export function DashboardOverview({ onSelectModule }: DashboardOverviewProps) {
           <ModuleCard
             title="Price Calculator"
             code="PRICE.CALC"
-            desc="Hitung harga jual lembaran multi-baris otomatis dengan diskon, MOQ, dan tonase."
+            desc="Hitung harga jual sheet multi-baris otomatis dengan diskon, MOQ, dan tonase."
             icon={Calculator}
             onClick={() => onSelectModule('price')}
           />
@@ -120,7 +148,7 @@ export function DashboardOverview({ onSelectModule }: DashboardOverviewProps) {
           <ModuleCard
             title="Weight & Tonnage"
             code="WEIGHT.CALC"
-            desc="Analisis total tonase dan estimasi muatan armada logistik pabrik (FSK / Fuso / Fuso Ori / Wingbox)."
+            desc="Analisis total tonase dan estimasi muatan armada logistik (FSK, Fuso, Wingbox)."
             icon={Weight}
             onClick={() => onSelectModule('tonnage')}
           />
@@ -129,47 +157,48 @@ export function DashboardOverview({ onSelectModule }: DashboardOverviewProps) {
           <ModuleCard
             title="God Mode Terminal"
             code="GOD.MODE"
-            desc="Kalkulator All-in-One komprehensif: Harga, MOQ, Tonase, Gramatur & Berat per Lembar."
+            desc="Kalkulator All-in-One: Harga, MOQ, Tonase, Gramatur & Berat per Lembar."
             icon={Terminal}
             onClick={() => onSelectModule('god-mode')}
           />
 
-          {/* 6. Box to Sheet Converter - Special */}
+          {/* 6. Box to Sheet Converter */}
           <ModuleCard
             title="Box to Sheet Converter"
             code="BOX.CONV"
-            desc="Konversi dimensi Box 3D (PxLxT) ke lembaran flat blank (RSC/FOL/Die-cut/Top-Bottom)."
+            desc="Konversi dimensi Box 3D (PxLxT) ke lembaran flat blank (RSC, FOL, Die-cut)."
             icon={Box}
             highlight
-            badge="NEW SPECIAL"
+            badge="SPECIAL"
             onClick={() => onSelectModule('box-converter')}
           />
 
-          {/* 7. Custom Cost Simulator - Special */}
+          {/* 7. Custom Cost Simulator */}
           <ModuleCard
             title="Custom Cost Simulator"
             code="COST.SIM"
             desc="Simulasi biaya bahan baku kertas per lapis, biaya lem, konversi mesin, margin & waste."
             icon={Cpu}
             highlight
-            badge="NEW SPECIAL"
+            badge="SPECIAL"
             onClick={() => onSelectModule('cost-simulator')}
           />
 
           {/* 8. Quick Specs Info */}
-          <div className="glass-panel rounded-2xl p-6 border border-white/10 flex flex-col justify-between space-y-4">
-            <div className="space-y-2">
-              <div className="text-xs font-black text-amber-400 uppercase font-mono tracking-widest">
-                STANDAR INDUSTRI
+          <div className="glass-panel rounded-xl p-4 sm:p-5 border border-white/10 flex flex-col justify-between space-y-3">
+            <div className="space-y-1.5">
+              <div className="text-[10px] font-black text-amber-400 uppercase font-mono tracking-widest">
+                STANDAR FLUTE
               </div>
-              <h3 className="text-base font-bold text-white font-mono">Faktor Flute Corrugated</h3>
-              <p className="text-xs text-muted-foreground">
-                B-Flute: 1.35x | C-Flute: 1.43x | E-Flute: 1.25x | Corrugator Max Width: 2.480 mm.
+              <h3 className="text-sm font-bold text-white font-mono">Faktor Corrugator</h3>
+              <p className="text-xs text-muted-foreground font-mono">
+                B: 1.35 | C: 1.43 | E: 1.25<br />
+                Max Lebar Roll: 2.480 mm
               </p>
             </div>
-            <div className="pt-2">
+            <div className="pt-1">
               <span className="inline-flex items-center gap-1.5 text-xs text-emerald-400 font-mono font-bold">
-                <CheckCircle2 className="w-4 h-4" /> Formula Teruji
+                <CheckCircle2 className="w-3.5 h-3.5" /> Formula Standar
               </span>
             </div>
           </div>
@@ -193,22 +222,22 @@ function ModuleCard({ title, code, desc, icon: Icon, highlight, badge, onClick }
   return (
     <div
       onClick={onClick}
-      className={`group cursor-pointer rounded-2xl p-6 glass-panel transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between relative overflow-hidden ${
+      className={`group cursor-pointer rounded-xl p-4 sm:p-5 glass-panel transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between relative overflow-hidden ${
         highlight
           ? 'border-amber-500/40 hover:border-amber-400 bg-amber-500/5 hover:bg-amber-500/10'
           : 'hover:border-amber-500/40 hover:bg-white/5'
       }`}
     >
-      <div className="space-y-4 relative z-10">
+      <div className="space-y-3 relative z-10">
         <div className="flex items-center justify-between">
           <div
-            className={`p-3 rounded-xl border transition-all duration-300 ${
+            className={`p-2.5 rounded-lg border transition-all duration-200 ${
               highlight
                 ? 'bg-amber-500/20 text-amber-400 border-amber-500/40 group-hover:bg-amber-500 group-hover:text-black'
                 : 'bg-white/5 text-amber-400 border-white/10 group-hover:bg-amber-500 group-hover:text-black group-hover:border-amber-500'
             }`}
           >
-            <Icon className="w-6 h-6" />
+            <Icon className="w-5 h-5" />
           </div>
           {badge && (
             <span className="px-2 py-0.5 rounded text-[9px] font-black bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase tracking-widest font-mono">
@@ -221,18 +250,18 @@ function ModuleCard({ title, code, desc, icon: Icon, highlight, badge, onClick }
           <div className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-widest">
             {code}
           </div>
-          <h3 className="text-lg font-bold text-white tracking-tight group-hover:text-amber-400 transition-colors font-mono">
+          <h3 className="text-base font-bold text-white tracking-tight group-hover:text-amber-400 transition-colors font-mono">
             {title}
           </h3>
-          <p className="text-xs text-muted-foreground mt-2 leading-relaxed font-sans">
+          <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
             {desc}
           </p>
         </div>
       </div>
 
-      <div className="pt-6 flex items-center justify-between text-xs font-mono font-bold text-amber-400 uppercase tracking-wider relative z-10">
+      <div className="pt-4 flex items-center justify-between text-xs font-mono font-bold text-amber-400 uppercase tracking-wider relative z-10">
         <span>Buka Modul</span>
-        <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1.5 transition-transform" />
+        <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
       </div>
     </div>
   );
