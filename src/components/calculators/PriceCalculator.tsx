@@ -277,25 +277,25 @@ export function PriceCalculator({ initialRows }: PriceCalculatorProps) {
       </div>
 
       {/* Multi-Row Table */}
-      <div className="glass-panel rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
+      <div className="glass-panel rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
-            <thead className="bg-black/50 text-muted-foreground font-bold tracking-wider uppercase border-b border-white/10">
+            <thead className="bg-[var(--bg-table-head)] text-[var(--text-table-head)] font-black tracking-wider uppercase border-b border-[var(--border-color)]">
               <tr>
-                <th className="py-3.5 px-3 w-10 text-center">#</th>
-                <th className="py-3.5 px-3 w-28">Panjang (mm)</th>
-                <th className="py-3.5 px-3 w-28">Lebar (mm)</th>
-                <th className="py-3.5 px-3 min-w-[200px]">Substance</th>
-                <th className="py-3.5 px-3 w-20">Flute</th>
-                <th className="py-3.5 px-3 w-24">Diskon (%)</th>
-                <th className="py-3.5 px-3 w-36 text-right">Harga Net / Pcs</th>
-                <th className="py-3.5 px-3 w-28 text-right">MOQ & Out</th>
-                <th className="py-3.5 px-3 w-28 text-right">Berat / Pcs</th>
-                <th className="py-3.5 px-3 w-16 text-center">Aksi</th>
+                <th className="py-3.5 px-3 w-10 text-center text-[var(--text-table-head)] font-black">#</th>
+                <th className="py-3.5 px-3 w-28 text-[var(--text-table-head)] font-black">Panjang (mm)</th>
+                <th className="py-3.5 px-3 w-28 text-[var(--text-table-head)] font-black">Lebar (mm)</th>
+                <th className="py-3.5 px-3 min-w-[200px] text-[var(--text-table-head)] font-black">Substance</th>
+                <th className="py-3.5 px-3 w-20 text-[var(--text-table-head)] font-black">Flute</th>
+                <th className="py-3.5 px-3 w-24 text-[var(--text-table-head)] font-black">Diskon (%)</th>
+                <th className="py-3.5 px-3 w-36 text-right text-[var(--text-table-head)] font-black">Harga Net / Pcs</th>
+                <th className="py-3.5 px-3 w-28 text-right text-[var(--text-table-head)] font-black">MOQ & Out</th>
+                <th className="py-3.5 px-3 w-28 text-right text-[var(--text-table-head)] font-black">Berat / Pcs</th>
+                <th className="py-3.5 px-3 w-16 text-center text-[var(--text-table-head)] font-black">Aksi</th>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-[var(--border-subtle)]">
               {computedRows.map((row, idx) => {
                 const isFound = !!row.priceResult;
                 return (

@@ -113,6 +113,42 @@ export interface FleetStandard {
   description: string;
 }
 
+export type FleetStatusType = 'underload' | 'optimal' | 'multiple';
+
+export interface FleetVehicleAnalysis {
+  id: 'FSK' | 'FUSO' | 'FUSO_ORI' | 'WINGBOX';
+  name: string;
+  minTons: number;
+  maxTons: number;
+  minKg: number;
+  maxKg: number;
+  status: FleetStatusType;
+  statusText: string;
+  statusBadge: string;
+  truckCount: number;
+  truckDisplay: string;
+  loadPercentage: number;
+  shortageKg: number;
+  shortageTons: number;
+  advice: string;
+  isFitOneTruck: boolean;
+}
+
+export interface FleetAnalysisSummary {
+  totalTons: number;
+  totalKg: number;
+  isBelowMinimumDelivery: boolean;
+  minimumShortageKg: number;
+  minimumShortageTons: number;
+  recommendedFleet: FleetVehicleAnalysis | null;
+  vehicles: {
+    fsk: FleetVehicleAnalysis;
+    fuso: FleetVehicleAnalysis;
+    fusoOri: FleetVehicleAnalysis;
+    wingbox: FleetVehicleAnalysis;
+  };
+}
+
 export interface FleetTripCalculation {
   fskTrips: number;
   fusoTrips: number;

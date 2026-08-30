@@ -181,40 +181,40 @@ export function ArticleExplorer({ onUseArticle }: ArticleExplorerProps) {
           </div>
 
           {/* Table Container */}
-          <div className="glass-panel rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
+          <div className="glass-panel rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-2xl">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs font-mono divide-y divide-white/10">
-                <thead className="bg-black/50 text-muted-foreground font-bold tracking-wider uppercase">
+              <table className="w-full text-left text-xs font-mono divide-y divide-[var(--border-color)]">
+                <thead className="bg-[var(--bg-table-head)] text-[var(--text-table-head)] font-black tracking-wider uppercase border-b border-[var(--border-color)]">
                   <tr>
-                    <th className="py-3.5 px-4 cursor-pointer hover:text-amber-400" onClick={() => toggleSort('nama_artikel')}>
+                    <th className="py-3.5 px-4 cursor-pointer hover:text-[var(--text-accent)] text-[var(--text-table-head)] font-black" onClick={() => toggleSort('nama_artikel')}>
                       <div className="flex items-center gap-1.5">
                         <span>Artikel ID</span>
-                        <ArrowUpDown className="w-3 h-3" />
+                        <ArrowUpDown className="w-3 h-3 text-[var(--text-accent)]" />
                       </div>
                     </th>
-                    <th className="py-3.5 px-4 cursor-pointer hover:text-amber-400" onClick={() => toggleSort('ukuran')}>
+                    <th className="py-3.5 px-4 cursor-pointer hover:text-[var(--text-accent)] text-[var(--text-table-head)] font-black" onClick={() => toggleSort('ukuran')}>
                       <div className="flex items-center gap-1.5">
                         <span>Ukuran (PxL mm)</span>
-                        <ArrowUpDown className="w-3 h-3" />
+                        <ArrowUpDown className="w-3 h-3 text-[var(--text-accent)]" />
                       </div>
                     </th>
-                    <th className="py-3.5 px-4 cursor-pointer hover:text-amber-400" onClick={() => toggleSort('substance')}>
+                    <th className="py-3.5 px-4 cursor-pointer hover:text-[var(--text-accent)] text-[var(--text-table-head)] font-black" onClick={() => toggleSort('substance')}>
                       <div className="flex items-center gap-1.5">
                         <span>Substance</span>
-                        <ArrowUpDown className="w-3 h-3" />
+                        <ArrowUpDown className="w-3 h-3 text-[var(--text-accent)]" />
                       </div>
                     </th>
-                    <th className="py-3.5 px-4 cursor-pointer hover:text-amber-400 text-center" onClick={() => toggleSort('flute')}>
+                    <th className="py-3.5 px-4 cursor-pointer hover:text-[var(--text-accent)] text-center text-[var(--text-table-head)] font-black" onClick={() => toggleSort('flute')}>
                       <div className="flex items-center justify-center gap-1.5">
                         <span>Flute</span>
-                        <ArrowUpDown className="w-3 h-3" />
+                        <ArrowUpDown className="w-3 h-3 text-[var(--text-accent)]" />
                       </div>
                     </th>
-                    <th className="py-3.5 px-4 text-right">Aksi Cepat</th>
+                    <th className="py-3.5 px-4 text-right text-[var(--text-table-head)] font-black">Aksi Cepat</th>
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-white/5">
+                <tbody className="divide-y divide-[var(--border-subtle)]">
                   {sortedData.length > 0 ? (
                     sortedData.map((item) => (
                       <tr key={item.id} className="hover:bg-amber-500/5 transition-colors group">

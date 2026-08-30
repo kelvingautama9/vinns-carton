@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Palette, Check, Sparkles, Moon, Sun, Droplets, Coffee } from 'lucide-react';
+import { Palette, Check, Moon, Sun, Droplets, Sparkles } from 'lucide-react';
 import { useAppTheme, AppTheme } from '../../context/ThemeContext';
 
 interface ThemeOption {
@@ -27,17 +27,17 @@ const THEME_OPTIONS: ThemeOption[] = [
   },
   {
     id: 'light-white',
-    label: 'Light White',
-    sublabel: 'Clean High-Contrast',
+    label: 'Light Glass',
+    sublabel: 'Glassmorphism & Pink',
     icon: Sun,
-    previewClass: 'bg-slate-100 border-slate-300 text-slate-800',
+    previewClass: 'bg-white border-[#BFC5D2] text-[#2F3440]',
   },
   {
     id: 'beige',
-    label: 'Beige Editorial',
-    sublabel: 'Warm Organic Linen',
-    icon: Coffee,
-    previewClass: 'bg-[#f5f0e8] border-[#d6ccb8] text-[#78350f]',
+    label: 'Luxe Beige',
+    sublabel: 'Cream & Wine Burgundy',
+    icon: Sparkles,
+    previewClass: 'bg-[#EFE9E1] border-[#AC9C8D] text-[#72383D]',
   },
 ];
 
@@ -57,23 +57,22 @@ export function ThemeSelector() {
   }, []);
 
   const currentOption = THEME_OPTIONS.find((t) => t.id === theme) || THEME_OPTIONS[0];
-  const CurrentIcon = currentOption.icon;
 
   return (
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-white/10 glass-panel hover:border-amber-400/40 text-xs font-mono font-bold transition-all"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-[var(--border-color)] glass-panel hover:border-[var(--accent-color)] text-xs font-mono font-bold transition-all text-[var(--text-main)]"
         title="Ganti Tema Tampilan"
       >
-        <Palette className="w-3.5 h-3.5 text-amber-400" />
+        <Palette className="w-3.5 h-3.5 text-[var(--text-accent)]" />
         <span className="hidden sm:inline font-sans font-semibold text-[11px]">{currentOption.label}</span>
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 p-1.5 rounded-2xl glass-panel border border-white/15 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
-          <div className="px-3 py-1.5 border-b border-white/10 mb-1">
-            <span className="text-[10px] uppercase font-mono font-bold text-muted-foreground tracking-wider">
+        <div className="absolute right-0 mt-2 w-60 p-2 rounded-2xl glass-panel border border-[var(--border-color)] shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 bg-[var(--bg-panel-solid)]">
+          <div className="px-3 py-1.5 border-b border-[var(--border-color)] mb-1.5">
+            <span className="text-[10px] uppercase font-mono font-bold text-[var(--text-muted)] tracking-wider">
               Pilih Tema (Theme)
             </span>
           </div>
@@ -89,10 +88,10 @@ export function ThemeSelector() {
                     setTheme(opt.id);
                     setIsOpen(false);
                   }}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left text-xs transition-all ${
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs transition-all ${
                     isSelected
-                      ? 'bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30'
-                      : 'hover:bg-white/10 text-slate-300'
+                      ? 'bg-[var(--bg-active)] text-[var(--text-accent)] font-bold border border-[var(--accent-color)]/40'
+                      : 'hover:bg-[var(--bg-card)] text-[var(--text-main)] border border-transparent'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
@@ -100,11 +99,11 @@ export function ThemeSelector() {
                       <Icon className="w-3.5 h-3.5" />
                     </div>
                     <div>
-                      <div className="font-semibold">{opt.label}</div>
-                      <div className="text-[10px] text-muted-foreground">{opt.sublabel}</div>
+                      <div className="font-bold text-[var(--text-main)]">{opt.label}</div>
+                      <div className="text-[10px] text-[var(--text-muted)]">{opt.sublabel}</div>
                     </div>
                   </div>
-                  {isSelected && <Check className="w-4 h-4 text-amber-400" />}
+                  {isSelected && <Check className="w-4 h-4 text-[var(--text-accent)]" />}
                 </button>
               );
             })}

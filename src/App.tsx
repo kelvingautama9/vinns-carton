@@ -112,18 +112,18 @@ export default function App() {
         {mobileMenuOpen && (
           <div className="fixed inset-0 z-50 lg:hidden flex">
             <div
-              className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
               onClick={() => setMobileMenuOpen(false)}
             />
-            <div className="relative z-10 w-72 max-w-[85vw] h-full bg-[var(--bg-sidebar)] border-r border-white/10 shadow-2xl flex flex-col">
-              <div className="flex items-center justify-between p-3.5 border-b border-white/10">
+            <div className="relative z-10 w-72 max-w-[85vw] h-full bg-[var(--bg-sidebar)] border-r border-[var(--border-color)] shadow-2xl flex flex-col">
+              <div className="flex items-center justify-between p-3.5 border-b border-[var(--border-color)]">
                 <div className="flex items-center gap-2">
-                  <Box className="w-5 h-5 text-amber-400" />
-                  <span className="font-black text-white font-mono text-sm">VINNS CARTON</span>
+                  <Box className="w-5 h-5 text-[var(--text-accent)]" />
+                  <span className="font-black text-[var(--text-main)] font-mono text-sm">VINNS CARTON</span>
                 </div>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-white bg-white/5"
+                  className="p-1.5 rounded-xl text-[var(--text-main)] hover:bg-[var(--bg-active)] bg-[var(--bg-card)] border border-[var(--border-color)]"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -145,15 +145,15 @@ export default function App() {
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
           {/* Top Mobile Bar */}
-          <div className="lg:hidden flex items-center justify-between px-3 py-2 border-b border-white/10 bg-[var(--bg-sidebar)]">
+          <div className="lg:hidden flex items-center justify-between px-3 py-2 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]">
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-mono font-bold text-amber-400"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-xs font-mono font-bold text-[var(--text-accent)]"
             >
               <Menu className="w-4 h-4" />
               <span>MENU</span>
             </button>
-            <div className="text-xs font-black font-mono tracking-wider">
+            <div className="text-xs font-black font-mono tracking-wider text-[var(--text-main)]">
               VINNS CARTON
             </div>
           </div>

@@ -6,6 +6,7 @@ import {
   calculateWeightPerSheet, 
   calculateGrammage, 
   calculateFleetTrips,
+  analyzeFleetRequirements,
   formatCurrency, 
   formatNumber, 
   normalizeSubstance 
@@ -23,7 +24,8 @@ import {
   ArrowRight,
   Sparkles,
   Info,
-  Truck
+  Truck,
+  AlertTriangle
 } from 'lucide-react';
 
 const FLUTE_OPTIONS = ['B', 'C', 'BC', 'E'];
@@ -81,6 +83,7 @@ export function GodModeCalculator({ initialValues, onNavigate }: GodModeCalculat
     const totalGrossOrder = (priceRes?.grossPrice || 0) * qty;
     const totalNetOrder = (priceRes?.unitPrice || 0) * qty;
     const fleet = calculateFleetTrips(totalTons);
+    const fleetAnalysis = analyzeFleetRequirements(totalTons);
 
     return {
       priceRes,
@@ -89,6 +92,7 @@ export function GodModeCalculator({ initialValues, onNavigate }: GodModeCalculat
       totalTons,
       gsm,
       fleet,
+      fleetAnalysis,
       totalGrossOrder,
       totalNetOrder,
       areaM2: weightRes.areaM2,
@@ -99,7 +103,7 @@ export function GodModeCalculator({ initialValues, onNavigate }: GodModeCalculat
   }, [panjang, lebar, substance, flute, diskon, quantity]);
 
   const handleCopyAll = () => {
-    const { priceRes, moqRes, weightGram, totalTons, gsm, areaM2, totalNetOrder, fleet } = results;
+    const { priceRes, moqRes, weightGram, totalTons, gsm, areaM2, totalNetOrder, fleetAnalysis } = results;
     const priceText = priceRes ? formatCurrency(priceRes.unitPrice) : 'Tidak Terdaftar';
     const grossText = priceRes ? formatCurrency(priceRes.grossPrice) : '-';
 
@@ -109,21 +113,24 @@ export function GodModeCalculator({ initialValues, onNavigate }: GodModeCalculat
       `• Dimensi      : ${panjang} x ${lebar} mm (${areaM2.toFixed(4)} m²)`,
       `• Substance    : ${substance} (${flute})`,
       `• Total GSM    : ${gsm} gsm`,
-      `• Kuantitas    : ${quantity.toLocaleString()} pcs`,
+      `• Kuantitas    : ${quantity.toLocaleString('id-ID')} pcs`,
       `• Diskon       : ${diskon}%`,
       ``,
       `Hasil Perhitungan:`,
       `• Harga Satuan : ${priceText}/pcs (Gross: ${grossText})`,
       `• Total Pesanan: ${formatCurrency(totalNetOrder)}`,
-      `• Est. MOQ     : ${moqRes.moq.toLocaleString()} pcs (Out: ${moqRes.out} out)`,
+      `• Est. MOQ     : ${moqRes.moq.toLocaleString('id-ID')} pcs (Out: ${moqRes.out} out)`,
       `• Berat Satuan : ${weightGram.toFixed(2)} gram / pcs`,
       `• Total Berat  : ${totalTons.toFixed(4)} TON (${results.totalWeightKg.toFixed(1)} kg)`,
       ``,
       `Estimasi Armada Pabrik:`,
-      `• FSK (1.8-2T)     : ${fleet.fskTrips} Rit`,
-      `• FUSO (2.1-2.5T)  : ${fleet.fusoTrips} Rit`,
-      `• FUSO ORI (2.5-3.4T): ${fleet.fusoOriTrips} Rit`,
-      `• WINGBOX (5-6.3T) : ${fleet.wingboxTrips} Rit`,
+      ...(fleetAnalysis.isBelowMinimumDelivery ? [
+        `⚠️ PERINGATAN: Belum memenuhi minimal standar pengiriman pabrik (FSK min. 1.8 Ton). Kurang ${fleetAnalysis.minimumShortageKg.toLocaleString('id-ID')} kg lagi.`
+      ] : []),
+      `• FSK (1.8-2.0 T)    : ${fleetAnalysis.vehicles.fsk.truckDisplay} | ${fleetAnalysis.vehicles.fsk.advice}`,
+      `• FUSO (2.1-2.5 T)   : ${fleetAnalysis.vehicles.fuso.truckDisplay} | ${fleetAnalysis.vehicles.fuso.advice}`,
+      `• FUSO ORI (2.5-3.4 T): ${fleetAnalysis.vehicles.fusoOri.truckDisplay} | ${fleetAnalysis.vehicles.fusoOri.advice}`,
+      `• WINGBOX (5.0-6.3 T): ${fleetAnalysis.vehicles.wingbox.truckDisplay} | ${fleetAnalysis.vehicles.wingbox.advice}`,
       `==============================================`,
     ].join('\n');
 
@@ -416,58 +423,138 @@ export function GodModeCalculator({ initialValues, onNavigate }: GodModeCalculat
 
           {/* Quick Factory Fleet Estimator Strip */}
           <div className="p-4 rounded-2xl bg-black/40 border border-white/10 space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <Truck className="w-4 h-4 text-emerald-400" />
                 <span className="text-xs font-bold text-white font-mono uppercase tracking-wider">
-                  ESTIMASI ARMADA PABRIK
+                  ESTIMASI KEBUTUHAN ARMADA (STANDAR PABRIK)
                 </span>
               </div>
               <span className="text-[10px] font-mono text-muted-foreground">
-                Total: <strong className="text-amber-400">{results.totalTons.toFixed(4)} Ton</strong>
+                Total: <strong className="text-amber-400 font-mono">{results.totalTons.toFixed(4)} Ton</strong> ({results.totalWeightKg.toFixed(1)} kg)
               </span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 space-y-0.5">
-                <div className="flex justify-between items-center text-[10px] text-amber-300 font-mono font-bold">
-                  <span>FSK</span>
-                  <span className="text-[9px] text-slate-400">1.8-2T</span>
+            {results.fleetAnalysis.isBelowMinimumDelivery && (
+              <div className="p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-900 dark:text-amber-200 flex items-center justify-between gap-2 text-[11px]">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span><strong>Order belum memenuhi standar minimal (FSK 1.8 Ton)</strong></span>
                 </div>
-                <div className="text-base font-black text-white font-mono">
-                  {results.fleet.fskTrips} <span className="text-[10px] font-sans font-normal text-slate-400">Rit</span>
-                </div>
+                <span className="font-mono font-bold shrink-0 text-amber-950 dark:text-amber-100">
+                  Kurang +{results.fleetAnalysis.minimumShortageKg.toLocaleString('id-ID')} kg
+                </span>
               </div>
+            )}
 
-              <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 space-y-0.5">
-                <div className="flex justify-between items-center text-[10px] text-emerald-300 font-mono font-bold">
-                  <span>FUSO</span>
-                  <span className="text-[9px] text-slate-400">2.1-2.5T</span>
-                </div>
-                <div className="text-base font-black text-white font-mono">
-                  {results.fleet.fusoTrips} <span className="text-[10px] font-sans font-normal text-slate-400">Rit</span>
-                </div>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+              {/* FSK */}
+              {(() => {
+                const v = results.fleetAnalysis.vehicles.fsk;
+                return (
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/5 space-y-1.5 flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-center text-[10px] text-amber-300 font-mono font-bold">
+                        <span>ARMADA FSK</span>
+                        <span className="text-[9px] text-slate-400">1.8-2.0T</span>
+                      </div>
+                      <div className="text-base font-black text-white font-mono mt-0.5">
+                        {v.truckDisplay}
+                      </div>
+                    </div>
+                    <div className="text-[9.5px] leading-tight text-slate-400 border-t border-white/5 pt-1">
+                      {v.status === 'underload' ? (
+                        <span className="text-rose-400">Kurang +{v.shortageKg.toLocaleString('id-ID')} kg</span>
+                      ) : v.status === 'optimal' ? (
+                        <span className="text-emerald-400">Muatan pas 1 truk</span>
+                      ) : (
+                        <span className="text-amber-400">Butuh {v.truckCount} truk</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
 
-              <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 space-y-0.5">
-                <div className="flex justify-between items-center text-[10px] text-cyan-300 font-mono font-bold">
-                  <span>FUSO ORI</span>
-                  <span className="text-[9px] text-slate-400">2.5-3.4T</span>
-                </div>
-                <div className="text-base font-black text-white font-mono">
-                  {results.fleet.fusoOriTrips} <span className="text-[10px] font-sans font-normal text-slate-400">Rit</span>
-                </div>
-              </div>
+              {/* FUSO */}
+              {(() => {
+                const v = results.fleetAnalysis.vehicles.fuso;
+                return (
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/5 space-y-1.5 flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-center text-[10px] text-emerald-300 font-mono font-bold">
+                        <span>ARMADA FUSO</span>
+                        <span className="text-[9px] text-slate-400">2.1-2.5T</span>
+                      </div>
+                      <div className="text-base font-black text-white font-mono mt-0.5">
+                        {v.truckDisplay}
+                      </div>
+                    </div>
+                    <div className="text-[9.5px] leading-tight text-slate-400 border-t border-white/5 pt-1">
+                      {v.status === 'underload' ? (
+                        <span className="text-rose-400">Kurang +{v.shortageKg.toLocaleString('id-ID')} kg</span>
+                      ) : v.status === 'optimal' ? (
+                        <span className="text-emerald-400">Muatan pas 1 truk</span>
+                      ) : (
+                        <span className="text-amber-400">Butuh {v.truckCount} truk</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
 
-              <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 space-y-0.5">
-                <div className="flex justify-between items-center text-[10px] text-purple-300 font-mono font-bold">
-                  <span>WINGBOX</span>
-                  <span className="text-[9px] text-slate-400">5-6.3T</span>
-                </div>
-                <div className="text-base font-black text-white font-mono">
-                  {results.fleet.wingboxTrips} <span className="text-[10px] font-sans font-normal text-slate-400">Rit</span>
-                </div>
-              </div>
+              {/* FUSO ORI */}
+              {(() => {
+                const v = results.fleetAnalysis.vehicles.fusoOri;
+                return (
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/5 space-y-1.5 flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-center text-[10px] text-cyan-300 font-mono font-bold">
+                        <span>ARMADA FUSO ORI</span>
+                        <span className="text-[9px] text-slate-400">2.5-3.4T</span>
+                      </div>
+                      <div className="text-base font-black text-white font-mono mt-0.5">
+                        {v.truckDisplay}
+                      </div>
+                    </div>
+                    <div className="text-[9.5px] leading-tight text-slate-400 border-t border-white/5 pt-1">
+                      {v.status === 'underload' ? (
+                        <span className="text-rose-400">Kurang +{v.shortageKg.toLocaleString('id-ID')} kg</span>
+                      ) : v.status === 'optimal' ? (
+                        <span className="text-emerald-400">Muatan pas 1 truk</span>
+                      ) : (
+                        <span className="text-amber-400">Butuh {v.truckCount} truk</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* WINGBOX */}
+              {(() => {
+                const v = results.fleetAnalysis.vehicles.wingbox;
+                return (
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/5 space-y-1.5 flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-center text-[10px] text-purple-300 font-mono font-bold">
+                        <span>ARMADA WINGBOX</span>
+                        <span className="text-[9px] text-slate-400">5.0-6.3T</span>
+                      </div>
+                      <div className="text-base font-black text-white font-mono mt-0.5">
+                        {v.truckDisplay}
+                      </div>
+                    </div>
+                    <div className="text-[9.5px] leading-tight text-slate-400 border-t border-white/5 pt-1">
+                      {v.status === 'underload' ? (
+                        <span className="text-rose-400">Kurang +{v.shortageKg.toLocaleString('id-ID')} kg</span>
+                      ) : v.status === 'optimal' ? (
+                        <span className="text-emerald-400">Muatan pas 1 truk</span>
+                      ) : (
+                        <span className="text-amber-400">Butuh {v.truckCount} truk</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>

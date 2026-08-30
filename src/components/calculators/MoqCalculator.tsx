@@ -175,22 +175,22 @@ export function MoqCalculator({ initialRows }: MoqCalculatorProps) {
       </div>
 
       {/* Multi-Row Table */}
-      <div className="glass-panel rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
+      <div className="glass-panel rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
-            <thead className="bg-black/50 text-muted-foreground font-bold tracking-wider uppercase border-b border-white/10">
+            <thead className="bg-[var(--bg-table-head)] text-[var(--text-table-head)] font-black tracking-wider uppercase border-b border-[var(--border-color)]">
               <tr>
-                <th className="py-3.5 px-3 w-10 text-center">#</th>
-                <th className="py-3.5 px-3 w-36">Panjang (mm)</th>
-                <th className="py-3.5 px-3 w-36">Lebar (mm)</th>
-                <th className="py-3.5 px-3 w-28 text-center">Out Mesin</th>
-                <th className="py-3.5 px-3 w-40 text-right">Est. Minimum Order (MOQ)</th>
-                <th className="py-3.5 px-3 min-w-[240px]">Visualisasi Potongan Roll (2480 mm)</th>
-                <th className="py-3.5 px-3 w-16 text-center">Aksi</th>
+                <th className="py-3.5 px-3 w-10 text-center text-[var(--text-table-head)] font-black">#</th>
+                <th className="py-3.5 px-3 w-36 text-[var(--text-table-head)] font-black">Panjang (mm)</th>
+                <th className="py-3.5 px-3 w-36 text-[var(--text-table-head)] font-black">Lebar (mm)</th>
+                <th className="py-3.5 px-3 w-28 text-center text-[var(--text-table-head)] font-black">Out Mesin</th>
+                <th className="py-3.5 px-3 w-40 text-right text-[var(--text-table-head)] font-black">Est. Minimum Order (MOQ)</th>
+                <th className="py-3.5 px-3 min-w-[240px] text-[var(--text-table-head)] font-black">Visualisasi Potongan Roll (2480 mm)</th>
+                <th className="py-3.5 px-3 w-16 text-center text-[var(--text-table-head)] font-black">Aksi</th>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-[var(--border-subtle)]">
               {computedRows.map((row, idx) => (
                 <tr key={row.id} className="hover:bg-amber-500/5 transition-colors group">
                   <td className="py-3 px-3 text-center text-muted-foreground font-bold">{idx + 1}</td>

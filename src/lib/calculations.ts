@@ -4,7 +4,9 @@ import {
   BoxConverterResult, 
   CostSimulationParams, 
   CostSimulationResult,
-  PaperLayer 
+  PaperLayer,
+  FleetVehicleAnalysis,
+  FleetAnalysisSummary
 } from '../types';
 
 export const FLUTE_TAKEUP_FACTORS: Record<string, number> = {
@@ -254,6 +256,139 @@ export const calculateFleetTrips = (totalTons: number) => {
     fusoOriMaxTrips,
     wingboxMinTrips,
     wingboxMaxTrips,
+  };
+};
+
+/**
+ * Detailed analysis of fleet requirements with underload alerts and filling shortage recommendations
+ */
+export const analyzeFleetRequirements = (totalTons: number): FleetAnalysisSummary => {
+  const totalKg = Number(((totalTons || 0) * 1000).toFixed(1));
+  const isBelowMinimumDelivery = totalKg > 0 && totalKg < FACTORY_FLEET_STANDARDS.FSK.minKg;
+  const minimumShortageKg = isBelowMinimumDelivery ? Number((FACTORY_FLEET_STANDARDS.FSK.minKg - totalKg).toFixed(1)) : 0;
+  const minimumShortageTons = Number((minimumShortageKg / 1000).toFixed(4));
+
+  const analyzeVehicle = (
+    key: 'FSK' | 'FUSO' | 'FUSO_ORI' | 'WINGBOX',
+    cfg: (typeof FACTORY_FLEET_STANDARDS)[keyof typeof FACTORY_FLEET_STANDARDS]
+  ): FleetVehicleAnalysis => {
+    const { minKg, maxKg, minTons, maxTons, name } = cfg;
+
+    if (totalKg <= 0) {
+      return {
+        id: key,
+        name,
+        minTons,
+        maxTons,
+        minKg,
+        maxKg,
+        status: 'underload',
+        statusText: 'Belum Ada Muatan',
+        statusBadge: 'BELUM ADA MUATAN',
+        truckCount: 0,
+        truckDisplay: '0 Truk',
+        loadPercentage: 0,
+        shortageKg: minKg,
+        shortageTons: minTons,
+        advice: `Isi kuantitas untuk menghitung muatan ${name}.`,
+        isFitOneTruck: false,
+      };
+    }
+
+    if (totalKg < minKg) {
+      const shortageKg = Number((minKg - totalKg).toFixed(1));
+      const shortageTons = Number((shortageKg / 1000).toFixed(4));
+      const loadPercentage = Math.min(99, Math.max(1, Math.round((totalKg / minKg) * 100)));
+
+      return {
+        id: key,
+        name,
+        minTons,
+        maxTons,
+        minKg,
+        maxKg,
+        status: 'underload',
+        statusText: 'Kurang dari Standar Muatan',
+        statusBadge: 'TIDAK MASUK',
+        truckCount: 0,
+        truckDisplay: 'Belum Masuk',
+        loadPercentage,
+        shortageKg,
+        shortageTons,
+        advice: `Kurang ${shortageKg.toLocaleString('id-ID')} kg lagi untuk memenuhi 1 armada ${name} (Min. ${minTons} Ton).`,
+        isFitOneTruck: false,
+      };
+    }
+
+    if (totalKg >= minKg && totalKg <= maxKg) {
+      const loadPercentage = Math.round((totalKg / maxKg) * 100);
+
+      return {
+        id: key,
+        name,
+        minTons,
+        maxTons,
+        minKg,
+        maxKg,
+        status: 'optimal',
+        statusText: 'Sesuai Kapasitas Standar',
+        statusBadge: 'PAS (1 TRUK)',
+        truckCount: 1,
+        truckDisplay: '1 Truk',
+        loadPercentage,
+        shortageKg: 0,
+        shortageTons: 0,
+        advice: `Muatan pas untuk 1 armada ${name} (${totalKg.toLocaleString('id-ID')} kg dari maks ${maxKg.toLocaleString('id-ID')} kg).`,
+        isFitOneTruck: true,
+      };
+    }
+
+    // totalKg > maxKg
+    const truckCount = Math.ceil(totalKg / maxKg);
+    return {
+      id: key,
+      name,
+      minTons,
+      maxTons,
+      minKg,
+      maxKg,
+      status: 'multiple',
+      statusText: 'Melebihi 1 Armada',
+      statusBadge: 'MELEBIHI 1 TRUK',
+      truckCount,
+      truckDisplay: `${truckCount} Truk`,
+      loadPercentage: 100,
+      shortageKg: 0,
+      shortageTons: 0,
+      advice: `Melebihi kapasitas 1 armada (maks ${maxTons} Ton). Memerlukan ${truckCount} unit truk ${name}.`,
+      isFitOneTruck: false,
+    };
+  };
+
+  const fsk = analyzeVehicle('FSK', FACTORY_FLEET_STANDARDS.FSK);
+  const fuso = analyzeVehicle('FUSO', FACTORY_FLEET_STANDARDS.FUSO);
+  const fusoOri = analyzeVehicle('FUSO_ORI', FACTORY_FLEET_STANDARDS.FUSO_ORI);
+  const wingbox = analyzeVehicle('WINGBOX', FACTORY_FLEET_STANDARDS.WINGBOX);
+
+  let recommendedFleet: FleetVehicleAnalysis | null = null;
+  if (fsk.isFitOneTruck) recommendedFleet = fsk;
+  else if (fuso.isFitOneTruck) recommendedFleet = fuso;
+  else if (fusoOri.isFitOneTruck) recommendedFleet = fusoOri;
+  else if (wingbox.isFitOneTruck) recommendedFleet = wingbox;
+
+  return {
+    totalTons,
+    totalKg,
+    isBelowMinimumDelivery,
+    minimumShortageKg,
+    minimumShortageTons,
+    recommendedFleet,
+    vehicles: {
+      fsk,
+      fuso,
+      fusoOri,
+      wingbox,
+    },
   };
 };
 

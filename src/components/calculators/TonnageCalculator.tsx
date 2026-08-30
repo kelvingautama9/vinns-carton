@@ -7,6 +7,7 @@ import {
   normalizeSubstance,
   formatNumber,
   calculateFleetTrips,
+  analyzeFleetRequirements,
   FACTORY_FLEET_STANDARDS
 } from '../../lib/calculations';
 import { 
@@ -18,7 +19,12 @@ import {
   Download, 
   Weight, 
   Truck, 
-  Layers
+  Layers,
+  AlertTriangle,
+  AlertCircle,
+  CheckCircle2,
+  Info,
+  Sparkles
 } from 'lucide-react';
 import { BulkPasteModal } from '../modals/BulkPasteModal';
 
@@ -129,6 +135,7 @@ export function TonnageCalculator({ initialRows }: TonnageCalculatorProps) {
 
     // Factory standard fleet trips calculation (FSK: 1.8-2T, FUSO: 2.1-2.5T, FUSO ORI: 2.5-3.4T, WINGBOX: 5-6.3T)
     const fleet = calculateFleetTrips(totalTons);
+    const fleetAnalysis = analyzeFleetRequirements(totalTons);
 
     return {
       totalTons: Number(totalTons.toFixed(4)),
@@ -136,6 +143,7 @@ export function TonnageCalculator({ initialRows }: TonnageCalculatorProps) {
       totalPcs,
       totalAreaM2: Number(totalAreaM2.toFixed(1)),
       fleet,
+      fleetAnalysis,
     };
   }, [computedRows]);
 
@@ -163,14 +171,19 @@ export function TonnageCalculator({ initialRows }: TonnageCalculatorProps) {
     });
 
     lines.push(`-------------------------------------------`);
-    lines.push(`GRAND TOTAL TONASE : ${summary.totalTons} TON (${summary.totalKg.toLocaleString()} kg)`);
-    lines.push(`TOTAL QUANTITY     : ${summary.totalPcs.toLocaleString()} pcs (${summary.totalAreaM2} m²)`);
+    lines.push(`GRAND TOTAL TONASE : ${summary.totalTons} TON (${summary.totalKg.toLocaleString('id-ID')} kg)`);
+    lines.push(`TOTAL QUANTITY     : ${summary.totalPcs.toLocaleString('id-ID')} pcs (${summary.totalAreaM2} m²)`);
     lines.push(``);
-    lines.push(`ESTIMASI DETAIL ARMADA PABRIK:`);
-    lines.push(`• FSK (1.8 - 2.0 T)     : ${summary.fleet.fskTrips} Rit`);
-    lines.push(`• FUSO (2.1 - 2.5 T)    : ${summary.fleet.fusoTrips} Rit`);
-    lines.push(`• FUSO ORI (2.5 - 3.4 T): ${summary.fleet.fusoOriTrips} Rit`);
-    lines.push(`• WINGBOX (5.0 - 6.3 T) : ${summary.fleet.wingboxTrips} Rit`);
+    lines.push(`ESTIMASI KEBUTUHAN ARMADA PABRIK:`);
+    if (summary.fleetAnalysis.isBelowMinimumDelivery) {
+      lines.push(`⚠️ PERINGATAN: Total tonase belum memenuhi standar minimal pengiriman pabrik (FSK min. 1.8 Ton).`);
+      lines.push(`   Kurang ${summary.fleetAnalysis.minimumShortageKg.toLocaleString('id-ID')} kg lagi untuk 1 truk FSK.`);
+    }
+    const { fsk, fuso, fusoOri, wingbox } = summary.fleetAnalysis.vehicles;
+    lines.push(`• FSK (1.8 - 2.0 T)     : ${fsk.truckDisplay} | ${fsk.advice}`);
+    lines.push(`• FUSO (2.1 - 2.5 T)    : ${fuso.truckDisplay} | ${fuso.advice}`);
+    lines.push(`• FUSO ORI (2.5 - 3.4 T): ${fusoOri.truckDisplay} | ${fusoOri.advice}`);
+    lines.push(`• WINGBOX (5.0 - 6.3 T) : ${wingbox.truckDisplay} | ${wingbox.advice}`);
     lines.push(`===========================================`);
 
     navigator.clipboard.writeText(lines.join('\n'));
@@ -257,24 +270,24 @@ export function TonnageCalculator({ initialRows }: TonnageCalculatorProps) {
       </div>
 
       {/* Multi-Row Table */}
-      <div className="glass-panel rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
+      <div className="glass-panel rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
-            <thead className="bg-black/50 text-muted-foreground font-bold tracking-wider uppercase border-b border-white/10">
+            <thead className="bg-[var(--bg-table-head)] text-[var(--text-table-head)] font-black tracking-wider uppercase border-b border-[var(--border-color)]">
               <tr>
-                <th className="py-3.5 px-3 w-10 text-center">#</th>
-                <th className="py-3.5 px-3 w-28">Panjang (mm)</th>
-                <th className="py-3.5 px-3 w-28">Lebar (mm)</th>
-                <th className="py-3.5 px-3 min-w-[180px]">Substance</th>
-                <th className="py-3.5 px-3 w-20">Flute</th>
-                <th className="py-3.5 px-3 w-28">Quantity (pcs)</th>
-                <th className="py-3.5 px-3 w-28 text-right">Berat / Pcs</th>
-                <th className="py-3.5 px-3 w-36 text-right">Total Berat (kg / Ton)</th>
-                <th className="py-3.5 px-3 w-16 text-center">Aksi</th>
+                <th className="py-3.5 px-3 w-10 text-center text-[var(--text-table-head)] font-black">#</th>
+                <th className="py-3.5 px-3 w-28 text-[var(--text-table-head)] font-black">Panjang (mm)</th>
+                <th className="py-3.5 px-3 w-28 text-[var(--text-table-head)] font-black">Lebar (mm)</th>
+                <th className="py-3.5 px-3 min-w-[180px] text-[var(--text-table-head)] font-black">Substance</th>
+                <th className="py-3.5 px-3 w-20 text-[var(--text-table-head)] font-black">Flute</th>
+                <th className="py-3.5 px-3 w-28 text-[var(--text-table-head)] font-black">Quantity (pcs)</th>
+                <th className="py-3.5 px-3 w-28 text-right text-[var(--text-table-head)] font-black">Berat / Pcs</th>
+                <th className="py-3.5 px-3 w-36 text-right text-[var(--text-table-head)] font-black">Total Berat (kg / Ton)</th>
+                <th className="py-3.5 px-3 w-16 text-center text-[var(--text-table-head)] font-black">Aksi</th>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-[var(--border-subtle)]">
               {computedRows.map((row, idx) => (
                 <tr key={row.id} className="hover:bg-amber-500/5 transition-colors group">
                   <td className="py-3 px-3 text-center text-muted-foreground font-bold">{idx + 1}</td>
@@ -462,111 +475,429 @@ export function TonnageCalculator({ initialRows }: TonnageCalculatorProps) {
                 DETAIL ESTIMASI KEBUTUHAN ARMADA (STANDAR PABRIK)
               </h3>
               <p className="text-[11px] text-muted-foreground">
-                Kalkulasi ritase otomatis berdasarkan batas muatan aman tiap jenis truk armada pabrik.
+                Kalkulasi kebutuhan armada otomatis berdasarkan standar muatan aman tiap jenis truk pabrik.
               </p>
             </div>
           </div>
           <span className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            4 KATEGORI ARMADA
+            4 STANDAR ARMADA
           </span>
         </div>
 
+        {/* Global Warning: Below Smallest Fleet (FSK 1.8 Ton) */}
+        {summary.fleetAnalysis.isBelowMinimumDelivery && (
+          <div className="p-4 rounded-2xl bg-amber-500/15 border-2 border-amber-500/40 text-amber-900 dark:text-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5 sm:mt-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div className="space-y-0.5">
+                <h4 className="text-xs font-black uppercase tracking-wider font-mono text-amber-800 dark:text-amber-300">
+                  PERINGATAN: ORDER BELUM MEMENUHI MINIMAL PENGIRIMAN
+                </h4>
+                <p className="text-[11px] text-amber-900/90 dark:text-amber-200/90 leading-relaxed font-sans">
+                  Total tonase saat ini (<strong className="font-mono">{summary.totalTons.toFixed(4)} Ton</strong> / <strong className="font-mono">{summary.totalKg.toLocaleString('id-ID')} kg</strong>) masih di bawah batas minimal armada terkecil (<strong className="font-mono">FSK Min. 1.8 Ton / 1.800 kg</strong>).
+                </p>
+              </div>
+            </div>
+            <div className="w-full sm:w-auto shrink-0 px-3.5 py-2 rounded-xl bg-amber-500/25 border border-amber-500/40 text-center sm:text-right">
+              <span className="text-[9px] uppercase font-bold tracking-wider text-amber-800 dark:text-amber-300 block">
+                Saran Penambahan Order
+              </span>
+              <span className="text-xs font-mono font-black text-amber-950 dark:text-amber-100">
+                + {summary.fleetAnalysis.minimumShortageKg.toLocaleString('id-ID')} kg <span className="font-normal text-[10px]">({summary.fleetAnalysis.minimumShortageTons.toFixed(3)} Ton)</span>
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Global Success Banner: Reached Factory Delivery Standards */}
+        {!summary.fleetAnalysis.isBelowMinimumDelivery && summary.totalKg > 0 && (
+          <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 flex flex-wrap items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+              <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                Tonase memenuhi standar muatan pabrik ({summary.totalTons.toFixed(4)} Ton / {summary.totalKg.toLocaleString('id-ID')} kg)
+              </span>
+            </div>
+            {summary.fleetAnalysis.recommendedFleet && (
+              <span className="text-[11px] font-mono font-bold px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" />
+                Rekomendasi Utama: {summary.fleetAnalysis.recommendedFleet.name} ({summary.fleetAnalysis.recommendedFleet.truckDisplay})
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* 4 Fleet Standard Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           {/* 1. FSK (1.8 - 2.0 Ton) */}
-          <div className="p-4 rounded-2xl bg-black/40 border border-white/10 hover:border-amber-500/30 transition-all space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-black text-amber-400 font-mono tracking-wide">
-                ARMADA FSK
-              </span>
-              <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-400/10 text-amber-300 border border-amber-400/20">
-                1.8 - 2.0 TON
-              </span>
-            </div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl font-black text-white font-mono">
-                {summary.fleet.fskMinTrips === summary.fleet.fskMaxTrips || summary.fleet.fskMinTrips === 0
-                  ? summary.fleet.fskTrips
-                  : `${summary.fleet.fskMinTrips} - ${summary.fleet.fskMaxTrips}`}
-              </span>
-              <span className="text-xs font-sans text-muted-foreground font-semibold">Rit / Truk</span>
-            </div>
-            <div className="text-[10px] text-slate-400 border-t border-white/5 pt-1.5 flex flex-col gap-0.5">
-              <span>Muatan: <strong className="text-slate-200 font-mono">1.800 - 2.000 kg</strong></span>
-              <span className="text-[9px] text-slate-500">Kapasitas beban aman FSK</span>
-            </div>
-          </div>
+          {(() => {
+            const v = summary.fleetAnalysis.vehicles.fsk;
+            return (
+              <div className="p-4 rounded-2xl bg-black/40 border border-white/10 hover:border-amber-500/30 transition-all flex flex-col justify-between space-y-3">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="text-[11px] font-black text-amber-400 font-mono tracking-wide">
+                      ARMADA FSK
+                    </span>
+                    <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-400/15 text-amber-600 dark:text-amber-300 border border-amber-400/30">
+                      1.8 - 2.0 TON
+                    </span>
+                  </div>
+
+                  {/* Status Badge */}
+                  <div>
+                    {v.status === 'underload' ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-mono font-black bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30">
+                        🔴 {summary.totalKg === 0 ? 'BELUM ADA MUATAN' : 'TIDAK MASUK'}
+                      </span>
+                    ) : v.status === 'optimal' ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-mono font-black bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                        🟢 PAS (1 TRUK)
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-mono font-black bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                        🟡 {v.truckCount} TRUK
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Truck Count / Status Display */}
+                  <div className="pt-1">
+                    {v.status === 'underload' ? (
+                      <div className="space-y-0.5">
+                        <div className="text-2xl font-black text-slate-400 dark:text-slate-500 font-mono">
+                          {summary.totalKg === 0 ? '0 Truk' : 'Belum Masuk'}
+                        </div>
+                        <p className="text-[10px] text-muted-foreground font-sans">
+                          {summary.totalKg === 0 ? 'Isi kuantitas box' : `Kurang dari min. ${v.minTons} Ton`}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-0.5">
+                        <div className="text-2xl font-black text-white font-mono flex items-baseline gap-1.5">
+                          {v.truckDisplay}
+                        </div>
+                        <p className="text-[10px] text-muted-foreground font-sans">
+                          {v.status === 'optimal' ? '1 Truk muatan optimal' : `Kapasitas terlampaui`}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Advice & Notice Box */}
+                <div className="space-y-2">
+                  <div className={`p-2.5 rounded-xl text-[11px] leading-relaxed border ${
+                    v.status === 'underload'
+                      ? 'bg-rose-500/10 dark:bg-rose-500/15 border-rose-500/25 text-rose-800 dark:text-rose-200'
+                      : v.status === 'optimal'
+                      ? 'bg-emerald-500/10 dark:bg-emerald-500/15 border-emerald-500/25 text-emerald-800 dark:text-emerald-200'
+                      : 'bg-amber-500/10 dark:bg-amber-500/15 border-amber-500/25 text-amber-800 dark:text-amber-200'
+                  }`}>
+                    <div className="flex items-center gap-1.5 font-bold text-[10px] uppercase tracking-wider mb-0.5">
+                      <Info className="w-3.5 h-3.5 shrink-0" />
+                      <span>{v.status === 'underload' ? 'Saran Pemenuhan:' : v.status === 'optimal' ? 'Status Muatan:' : 'Estimasi Kebutuhan:'}</span>
+                    </div>
+                    <p className="text-[10.5px] font-sans">
+                      {v.status === 'underload' ? (
+                        summary.totalKg === 0 ? (
+                          'Masukkan quantity pesanan untuk menghitung muatan.'
+                        ) : (
+                          <>Kurang <strong className="font-mono font-bold">+{v.shortageKg.toLocaleString('id-ID')} kg</strong> lagi ({v.shortageTons.toFixed(3)} T) untuk 1 armada FSK.</>
+                        )
+                      ) : v.status === 'optimal' ? (
+                        <>Muatan <strong className="font-mono font-bold">{summary.totalKg.toLocaleString('id-ID')} kg</strong> pas untuk 1 armada FSK.</>
+                      ) : (
+                        <>Memerlukan <strong className="font-mono font-bold">{v.truckCount} Truk FSK</strong> (maks {v.maxTons} T/truk).</>
+                      )}
+                    </p>
+                  </div>
+
+                  <div className="text-[10px] text-slate-400 border-t border-white/5 pt-1.5 flex flex-col gap-0.5 font-sans">
+                    <span>Standar Aman: <strong className="text-slate-200 font-mono">1.800 - 2.000 kg</strong></span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* 2. FUSO (2.1 - 2.5 Ton) */}
-          <div className="p-4 rounded-2xl bg-black/40 border border-white/10 hover:border-emerald-500/30 transition-all space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-black text-emerald-400 font-mono tracking-wide">
-                ARMADA FUSO
-              </span>
-              <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-400/10 text-emerald-300 border border-emerald-400/20">
-                2.1 - 2.5 TON
-              </span>
-            </div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl font-black text-white font-mono">
-                {summary.fleet.fusoMinTrips === summary.fleet.fusoMaxTrips || summary.fleet.fusoMinTrips === 0
-                  ? summary.fleet.fusoTrips
-                  : `${summary.fleet.fusoMinTrips} - ${summary.fleet.fusoMaxTrips}`}
-              </span>
-              <span className="text-xs font-sans text-muted-foreground font-semibold">Rit / Truk</span>
-            </div>
-            <div className="text-[10px] text-slate-400 border-t border-white/5 pt-1.5 flex flex-col gap-0.5">
-              <span>Muatan: <strong className="text-slate-200 font-mono">2.100 - 2.500 kg</strong></span>
-              <span className="text-[9px] text-slate-500">Kapasitas standar Fuso</span>
-            </div>
-          </div>
+          {(() => {
+            const v = summary.fleetAnalysis.vehicles.fuso;
+            return (
+              <div className="p-4 rounded-2xl bg-black/40 border border-white/10 hover:border-emerald-500/30 transition-all flex flex-col justify-between space-y-3">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="text-[11px] font-black text-emerald-500 dark:text-emerald-400 font-mono tracking-wide">
+                      ARMADA FUSO
+                    </span>
+                    <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                      2.1 - 2.5 TON
+                    </span>
+                  </div>
+
+                  {/* Status Badge */}
+                  <div>
+                    {v.status === 'underload' ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-mono font-black bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30">
+                        🔴 {summary.totalKg === 0 ? 'BELUM ADA MUATAN' : 'TIDAK MASUK'}
+                      </span>
+                    ) : v.status === 'optimal' ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-mono font-black bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                        🟢 PAS (1 TRUK)
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-mono font-black bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                        🟡 {v.truckCount} TRUK
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Truck Count / Status Display */}
+                  <div className="pt-1">
+                    {v.status === 'underload' ? (
+                      <div className="space-y-0.5">
+                        <div className="text-2xl font-black text-slate-400 dark:text-slate-500 font-mono">
+                          {summary.totalKg === 0 ? '0 Truk' : 'Belum Masuk'}
+                        </div>
+                        <p className="text-[10px] text-muted-foreground font-sans">
+                          {summary.totalKg === 0 ? 'Isi kuantitas box' : `Kurang dari min. ${v.minTons} Ton`}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-0.5">
+                        <div className="text-2xl font-black text-white font-mono flex items-baseline gap-1.5">
+                          {v.truckDisplay}
+                        </div>
+                        <p className="text-[10px] text-muted-foreground font-sans">
+                          {v.status === 'optimal' ? '1 Truk muatan optimal' : `Kapasitas terlampaui`}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Advice & Notice Box */}
+                <div className="space-y-2">
+                  <div className={`p-2.5 rounded-xl text-[11px] leading-relaxed border ${
+                    v.status === 'underload'
+                      ? 'bg-rose-500/10 dark:bg-rose-500/15 border-rose-500/25 text-rose-800 dark:text-rose-200'
+                      : v.status === 'optimal'
+                      ? 'bg-emerald-500/10 dark:bg-emerald-500/15 border-emerald-500/25 text-emerald-800 dark:text-emerald-200'
+                      : 'bg-amber-500/10 dark:bg-amber-500/15 border-amber-500/25 text-amber-800 dark:text-amber-200'
+                  }`}>
+                    <div className="flex items-center gap-1.5 font-bold text-[10px] uppercase tracking-wider mb-0.5">
+                      <Info className="w-3.5 h-3.5 shrink-0" />
+                      <span>{v.status === 'underload' ? 'Saran Pemenuhan:' : v.status === 'optimal' ? 'Status Muatan:' : 'Estimasi Kebutuhan:'}</span>
+                    </div>
+                    <p className="text-[10.5px] font-sans">
+                      {v.status === 'underload' ? (
+                        summary.totalKg === 0 ? (
+                          'Masukkan quantity pesanan untuk menghitung muatan.'
+                        ) : (
+                          <>Kurang <strong className="font-mono font-bold">+{v.shortageKg.toLocaleString('id-ID')} kg</strong> lagi ({v.shortageTons.toFixed(3)} T) untuk 1 armada Fuso.</>
+                        )
+                      ) : v.status === 'optimal' ? (
+                        <>Muatan <strong className="font-mono font-bold">{summary.totalKg.toLocaleString('id-ID')} kg</strong> pas untuk 1 armada Fuso.</>
+                      ) : (
+                        <>Memerlukan <strong className="font-mono font-bold">{v.truckCount} Truk Fuso</strong> (maks {v.maxTons} T/truk).</>
+                      )}
+                    </p>
+                  </div>
+
+                  <div className="text-[10px] text-slate-400 border-t border-white/5 pt-1.5 flex flex-col gap-0.5 font-sans">
+                    <span>Standar Aman: <strong className="text-slate-200 font-mono">2.100 - 2.500 kg</strong></span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* 3. FUSO ORI (2.5 - 3.4 Ton) */}
-          <div className="p-4 rounded-2xl bg-black/40 border border-white/10 hover:border-cyan-500/30 transition-all space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-black text-cyan-400 font-mono tracking-wide">
-                ARMADA FUSO ORI
-              </span>
-              <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-cyan-400/10 text-cyan-300 border border-cyan-400/20">
-                2.5 - 3.4 TON
-              </span>
-            </div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl font-black text-white font-mono">
-                {summary.fleet.fusoOriMinTrips === summary.fleet.fusoOriMaxTrips || summary.fleet.fusoOriMinTrips === 0
-                  ? summary.fleet.fusoOriTrips
-                  : `${summary.fleet.fusoOriMinTrips} - ${summary.fleet.fusoOriMaxTrips}`}
-              </span>
-              <span className="text-xs font-sans text-muted-foreground font-semibold">Rit / Truk</span>
-            </div>
-            <div className="text-[10px] text-slate-400 border-t border-white/5 pt-1.5 flex flex-col gap-0.5">
-              <span>Muatan: <strong className="text-slate-200 font-mono">2.500 - 3.400 kg</strong></span>
-              <span className="text-[9px] text-slate-500">Kapasitas muat Fuso Ori</span>
-            </div>
-          </div>
+          {(() => {
+            const v = summary.fleetAnalysis.vehicles.fusoOri;
+            return (
+              <div className="p-4 rounded-2xl bg-black/40 border border-white/10 hover:border-sky-500/30 transition-all flex flex-col justify-between space-y-3">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="text-[11px] font-black text-sky-500 dark:text-cyan-400 font-mono tracking-wide">
+                      ARMADA FUSO ORI
+                    </span>
+                    <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-sky-500/15 text-sky-700 dark:text-cyan-300 border border-sky-500/30">
+                      2.5 - 3.4 TON
+                    </span>
+                  </div>
+
+                  {/* Status Badge */}
+                  <div>
+                    {v.status === 'underload' ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-mono font-black bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30">
+                        🔴 {summary.totalKg === 0 ? 'BELUM ADA MUATAN' : 'TIDAK MASUK'}
+                      </span>
+                    ) : v.status === 'optimal' ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-mono font-black bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                        🟢 PAS (1 TRUK)
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-mono font-black bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                        🟡 {v.truckCount} TRUK
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Truck Count / Status Display */}
+                  <div className="pt-1">
+                    {v.status === 'underload' ? (
+                      <div className="space-y-0.5">
+                        <div className="text-2xl font-black text-slate-400 dark:text-slate-500 font-mono">
+                          {summary.totalKg === 0 ? '0 Truk' : 'Belum Masuk'}
+                        </div>
+                        <p className="text-[10px] text-muted-foreground font-sans">
+                          {summary.totalKg === 0 ? 'Isi kuantitas box' : `Kurang dari min. ${v.minTons} Ton`}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-0.5">
+                        <div className="text-2xl font-black text-white font-mono flex items-baseline gap-1.5">
+                          {v.truckDisplay}
+                        </div>
+                        <p className="text-[10px] text-muted-foreground font-sans">
+                          {v.status === 'optimal' ? '1 Truk muatan optimal' : `Kapasitas terlampaui`}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Advice & Notice Box */}
+                <div className="space-y-2">
+                  <div className={`p-2.5 rounded-xl text-[11px] leading-relaxed border ${
+                    v.status === 'underload'
+                      ? 'bg-rose-500/10 dark:bg-rose-500/15 border-rose-500/25 text-rose-800 dark:text-rose-200'
+                      : v.status === 'optimal'
+                      ? 'bg-emerald-500/10 dark:bg-emerald-500/15 border-emerald-500/25 text-emerald-800 dark:text-emerald-200'
+                      : 'bg-amber-500/10 dark:bg-amber-500/15 border-amber-500/25 text-amber-800 dark:text-amber-200'
+                  }`}>
+                    <div className="flex items-center gap-1.5 font-bold text-[10px] uppercase tracking-wider mb-0.5">
+                      <Info className="w-3.5 h-3.5 shrink-0" />
+                      <span>{v.status === 'underload' ? 'Saran Pemenuhan:' : v.status === 'optimal' ? 'Status Muatan:' : 'Estimasi Kebutuhan:'}</span>
+                    </div>
+                    <p className="text-[10.5px] font-sans">
+                      {v.status === 'underload' ? (
+                        summary.totalKg === 0 ? (
+                          'Masukkan quantity pesanan untuk menghitung muatan.'
+                        ) : (
+                          <>Kurang <strong className="font-mono font-bold">+{v.shortageKg.toLocaleString('id-ID')} kg</strong> lagi ({v.shortageTons.toFixed(3)} T) untuk 1 armada Fuso Ori.</>
+                        )
+                      ) : v.status === 'optimal' ? (
+                        <>Muatan <strong className="font-mono font-bold">{summary.totalKg.toLocaleString('id-ID')} kg</strong> pas untuk 1 armada Fuso Ori.</>
+                      ) : (
+                        <>Memerlukan <strong className="font-mono font-bold">{v.truckCount} Truk Fuso Ori</strong> (maks {v.maxTons} T/truk).</>
+                      )}
+                    </p>
+                  </div>
+
+                  <div className="text-[10px] text-slate-400 border-t border-white/5 pt-1.5 flex flex-col gap-0.5 font-sans">
+                    <span>Standar Aman: <strong className="text-slate-200 font-mono">2.500 - 3.400 kg</strong></span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* 4. WINGBOX (5.0 - 6.3 Ton) */}
-          <div className="p-4 rounded-2xl bg-black/40 border border-white/10 hover:border-purple-500/30 transition-all space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-black text-purple-400 font-mono tracking-wide">
-                ARMADA WINGBOX
-              </span>
-              <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-purple-400/10 text-purple-300 border border-purple-400/20">
-                5.0 - 6.3 TON
-              </span>
-            </div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl font-black text-white font-mono">
-                {summary.fleet.wingboxMinTrips === summary.fleet.wingboxMaxTrips || summary.fleet.wingboxMinTrips === 0
-                  ? summary.fleet.wingboxTrips
-                  : `${summary.fleet.wingboxMinTrips} - ${summary.fleet.wingboxMaxTrips}`}
-              </span>
-              <span className="text-xs font-sans text-muted-foreground font-semibold">Rit / Truk</span>
-            </div>
-            <div className="text-[10px] text-slate-400 border-t border-white/5 pt-1.5 flex flex-col gap-0.5">
-              <span>Muatan: <strong className="text-slate-200 font-mono">5.000 - 6.300 kg</strong></span>
-              <span className="text-[9px] text-slate-500">Kapasitas muat Wingbox besar</span>
-            </div>
-          </div>
+          {(() => {
+            const v = summary.fleetAnalysis.vehicles.wingbox;
+            return (
+              <div className="p-4 rounded-2xl bg-black/40 border border-white/10 hover:border-purple-500/30 transition-all flex flex-col justify-between space-y-3">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="text-[11px] font-black text-purple-500 dark:text-purple-400 font-mono tracking-wide">
+                      ARMADA WINGBOX
+                    </span>
+                    <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30">
+                      5.0 - 6.3 TON
+                    </span>
+                  </div>
+
+                  {/* Status Badge */}
+                  <div>
+                    {v.status === 'underload' ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-mono font-black bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30">
+                        🔴 {summary.totalKg === 0 ? 'BELUM ADA MUATAN' : 'TIDAK MASUK'}
+                      </span>
+                    ) : v.status === 'optimal' ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-mono font-black bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                        🟢 PAS (1 TRUK)
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-mono font-black bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                        🟡 {v.truckCount} TRUK
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Truck Count / Status Display */}
+                  <div className="pt-1">
+                    {v.status === 'underload' ? (
+                      <div className="space-y-0.5">
+                        <div className="text-2xl font-black text-slate-400 dark:text-slate-500 font-mono">
+                          {summary.totalKg === 0 ? '0 Truk' : 'Belum Masuk'}
+                        </div>
+                        <p className="text-[10px] text-muted-foreground font-sans">
+                          {summary.totalKg === 0 ? 'Isi kuantitas box' : `Kurang dari min. ${v.minTons} Ton`}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-0.5">
+                        <div className="text-2xl font-black text-white font-mono flex items-baseline gap-1.5">
+                          {v.truckDisplay}
+                        </div>
+                        <p className="text-[10px] text-muted-foreground font-sans">
+                          {v.status === 'optimal' ? '1 Truk muatan optimal' : `Kapasitas terlampaui`}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Advice & Notice Box */}
+                <div className="space-y-2">
+                  <div className={`p-2.5 rounded-xl text-[11px] leading-relaxed border ${
+                    v.status === 'underload'
+                      ? 'bg-rose-500/10 dark:bg-rose-500/15 border-rose-500/25 text-rose-800 dark:text-rose-200'
+                      : v.status === 'optimal'
+                      ? 'bg-emerald-500/10 dark:bg-emerald-500/15 border-emerald-500/25 text-emerald-800 dark:text-emerald-200'
+                      : 'bg-amber-500/10 dark:bg-amber-500/15 border-amber-500/25 text-amber-800 dark:text-amber-200'
+                  }`}>
+                    <div className="flex items-center gap-1.5 font-bold text-[10px] uppercase tracking-wider mb-0.5">
+                      <Info className="w-3.5 h-3.5 shrink-0" />
+                      <span>{v.status === 'underload' ? 'Saran Pemenuhan:' : v.status === 'optimal' ? 'Status Muatan:' : 'Estimasi Kebutuhan:'}</span>
+                    </div>
+                    <p className="text-[10.5px] font-sans">
+                      {v.status === 'underload' ? (
+                        summary.totalKg === 0 ? (
+                          'Masukkan quantity pesanan untuk menghitung muatan.'
+                        ) : (
+                          <>Kurang <strong className="font-mono font-bold">+{v.shortageKg.toLocaleString('id-ID')} kg</strong> lagi ({v.shortageTons.toFixed(3)} T) untuk 1 armada Wingbox.</>
+                        )
+                      ) : v.status === 'optimal' ? (
+                        <>Muatan <strong className="font-mono font-bold">{summary.totalKg.toLocaleString('id-ID')} kg</strong> pas untuk 1 armada Wingbox.</>
+                      ) : (
+                        <>Memerlukan <strong className="font-mono font-bold">{v.truckCount} Truk Wingbox</strong> (maks {v.maxTons} T/truk).</>
+                      )}
+                    </p>
+                  </div>
+
+                  <div className="text-[10px] text-slate-400 border-t border-white/5 pt-1.5 flex flex-col gap-0.5 font-sans">
+                    <span>Standar Aman: <strong className="text-slate-200 font-mono">5.000 - 6.300 kg</strong></span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </div>
 
