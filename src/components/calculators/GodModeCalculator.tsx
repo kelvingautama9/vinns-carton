@@ -25,8 +25,11 @@ import {
   Sparkles,
   Info,
   Truck,
-  AlertTriangle
+  AlertTriangle,
+  Download
 } from 'lucide-react';
+import { DownloadSummaryModal } from '../modals/DownloadSummaryModal';
+import { SummaryExportData } from '../../lib/summaryExport';
 
 const FLUTE_OPTIONS = ['B', 'C', 'BC', 'E'];
 
@@ -65,6 +68,7 @@ export function GodModeCalculator({ initialValues, onNavigate }: GodModeCalculat
   const [diskon, setDiskon] = useState<number>(initialValues?.diskon || 0);
   const [quantity, setQuantity] = useState<number>(initialValues?.quantity || 2500);
   const [copied, setCopied] = useState(false);
+  const [isDownloadSummaryOpen, setIsDownloadSummaryOpen] = useState(false);
 
   const results = useMemo(() => {
     const p = Math.max(0, panjang || 0);
@@ -139,6 +143,38 @@ export function GodModeCalculator({ initialValues, onNavigate }: GodModeCalculat
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const summaryExportData: SummaryExportData = useMemo(() => ({
+    title: 'Vinns God Mode Calculation Report',
+    sourceCalculator: 'GOD_MODE',
+    items: [
+      {
+        name: `Sheet Karton (${panjang}x${lebar} mm)`,
+        panjang,
+        lebar,
+        substance,
+        flute,
+        gsm: results.gsm,
+        quantity,
+        unitPrice: results.priceRes?.unitPrice,
+        grossPrice: results.priceRes?.grossPrice,
+        discount: diskon,
+        moq: results.moqRes.moq,
+        out: results.moqRes.out,
+        weightGram: results.weightGram,
+        rowWeightKg: results.totalWeightKg,
+        rowTonnageTons: results.totalTons,
+        areaM2: results.areaM2,
+      }
+    ],
+    totalTons: results.totalTons,
+    totalKg: results.totalWeightKg,
+    totalPcs: quantity,
+    totalAreaM2: Number((results.areaM2 * quantity).toFixed(2)),
+    totalGrossOrder: results.totalGrossOrder,
+    totalNetOrder: results.totalNetOrder,
+    fleetAnalysis: results.fleetAnalysis,
+  }), [panjang, lebar, substance, flute, diskon, quantity, results]);
+
   return (
     <div className="space-y-8 max-w-7xl mx-auto animate-in fade-in duration-300">
       {/* Header Banner */}
@@ -159,6 +195,15 @@ export function GodModeCalculator({ initialValues, onNavigate }: GodModeCalculat
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsDownloadSummaryOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 font-bold text-xs font-mono tracking-wider shadow-sm transition-all"
+            title="Unduh & Bagikan ringkasan dimensi, tonase, dan armada via WhatsApp/Email"
+          >
+            <Download className="w-4 h-4 text-emerald-400" />
+            <span>Download Summary</span>
+          </button>
+
           <button
             onClick={handleCopyAll}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs font-mono tracking-wider shadow-lg shadow-amber-500/25 transition-all"
@@ -559,6 +604,12 @@ export function GodModeCalculator({ initialValues, onNavigate }: GodModeCalculat
           </div>
         </div>
       </div>
+
+      <DownloadSummaryModal
+        isOpen={isDownloadSummaryOpen}
+        onClose={() => setIsDownloadSummaryOpen(false)}
+        data={summaryExportData}
+      />
     </div>
   );
 }

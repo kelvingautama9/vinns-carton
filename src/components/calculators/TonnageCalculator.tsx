@@ -27,6 +27,8 @@ import {
   Sparkles
 } from 'lucide-react';
 import { BulkPasteModal } from '../modals/BulkPasteModal';
+import { DownloadSummaryModal } from '../modals/DownloadSummaryModal';
+import { SummaryExportData } from '../../lib/summaryExport';
 
 const FLUTE_OPTIONS = ['B', 'C', 'BC', 'E'];
 
@@ -64,6 +66,7 @@ export function TonnageCalculator({ initialRows }: TonnageCalculatorProps) {
   });
 
   const [isBulkOpen, setIsBulkOpen] = useState(false);
+  const [isDownloadSummaryOpen, setIsDownloadSummaryOpen] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [isCopiedAll, setIsCopiedAll] = useState(false);
 
@@ -191,6 +194,30 @@ export function TonnageCalculator({ initialRows }: TonnageCalculatorProps) {
     setTimeout(() => setIsCopiedAll(false), 2000);
   };
 
+  const summaryExportData: SummaryExportData = useMemo(() => ({
+    title: 'Kalkulator Berat & Tonase Karton Box',
+    sourceCalculator: 'TONNAGE',
+    items: computedRows.map((r, idx) => ({
+      id: r.id,
+      name: `Item #${idx + 1} (${r.panjang}x${r.lebar} mm)`,
+      panjang: r.panjang,
+      lebar: r.lebar,
+      substance: r.substance,
+      flute: r.flute,
+      gsm: r.gsm,
+      quantity: r.quantity,
+      weightGram: r.weightGram,
+      rowWeightKg: r.rowWeightKg,
+      rowTonnageTons: r.rowTonnageTons,
+      areaM2: Number(((r.panjang * r.lebar) / 1_000_000).toFixed(4)),
+    })),
+    totalTons: summary.totalTons,
+    totalKg: summary.totalKg,
+    totalPcs: summary.totalPcs,
+    totalAreaM2: summary.totalAreaM2,
+    fleetAnalysis: summary.fleetAnalysis,
+  }), [computedRows, summary]);
+
   const exportCSV = () => {
     const headers = [
       'No',
@@ -252,11 +279,12 @@ export function TonnageCalculator({ initialRows }: TonnageCalculatorProps) {
           </button>
 
           <button
-            onClick={exportCSV}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold font-mono bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 transition-all"
+            onClick={() => setIsDownloadSummaryOpen(true)}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold font-mono bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 transition-all shadow-sm"
+            title="Download Summary dalam format WhatsApp, Email, TXT & CSV"
           >
             <Download className="w-4 h-4 text-emerald-400" />
-            <span>Export CSV</span>
+            <span>Download Summary</span>
           </button>
 
           <button
@@ -906,6 +934,12 @@ export function TonnageCalculator({ initialRows }: TonnageCalculatorProps) {
         onClose={() => setIsBulkOpen(false)}
         mode="tonnage"
         onImport={(newRows) => setRows(newRows)}
+      />
+
+      <DownloadSummaryModal
+        isOpen={isDownloadSummaryOpen}
+        onClose={() => setIsDownloadSummaryOpen(false)}
+        data={summaryExportData}
       />
     </div>
   );

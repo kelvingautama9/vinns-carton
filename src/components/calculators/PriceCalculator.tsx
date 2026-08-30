@@ -25,6 +25,8 @@ import {
   FileSpreadsheet
 } from 'lucide-react';
 import { BulkPasteModal } from '../modals/BulkPasteModal';
+import { DownloadSummaryModal } from '../modals/DownloadSummaryModal';
+import { SummaryExportData } from '../../lib/summaryExport';
 
 const FLUTE_OPTIONS = ['B', 'C', 'BC', 'E'];
 
@@ -63,6 +65,7 @@ export function PriceCalculator({ initialRows }: PriceCalculatorProps) {
   });
 
   const [isBulkOpen, setIsBulkOpen] = useState(false);
+  const [isDownloadSummaryOpen, setIsDownloadSummaryOpen] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [isCopiedAll, setIsCopiedAll] = useState(false);
 
@@ -193,6 +196,63 @@ export function PriceCalculator({ initialRows }: PriceCalculatorProps) {
     setTimeout(() => setIsCopiedAll(false), 2000);
   };
 
+  const summaryExportData: SummaryExportData = useMemo(() => {
+    let totalTons = 0;
+    let totalKg = 0;
+    let totalPcs = 0;
+    let totalNetOrder = 0;
+    let totalGrossOrder = 0;
+    let totalAreaM2 = 0;
+
+    const items = computedRows.map((r, idx) => {
+      const qty = r.moqResult?.moq || 1000;
+      const wGram = r.weightInfo?.weightGram || 0;
+      const rowKg = (wGram * qty) / 1000;
+      const rowTons = rowKg / 1000;
+      const unitPrice = r.priceResult?.unitPrice || 0;
+      const grossPrice = r.priceResult?.grossPrice || 0;
+
+      totalTons += rowTons;
+      totalKg += rowKg;
+      totalPcs += qty;
+      totalNetOrder += unitPrice * qty;
+      totalGrossOrder += grossPrice * qty;
+      totalAreaM2 += (r.weightInfo?.areaM2 || 0) * qty;
+
+      return {
+        id: r.id,
+        name: `Sheet #${idx + 1} (${r.panjang}x${r.lebar} mm)`,
+        panjang: r.panjang,
+        lebar: r.lebar,
+        substance: r.substance,
+        flute: r.flute,
+        gsm: r.weightInfo?.totalGsm,
+        quantity: qty,
+        unitPrice,
+        grossPrice,
+        discount: r.diskon,
+        moq: r.moqResult?.moq,
+        out: r.moqResult?.out,
+        weightGram: wGram,
+        rowWeightKg: rowKg,
+        rowTonnageTons: rowTons,
+        areaM2: r.weightInfo?.areaM2,
+      };
+    });
+
+    return {
+      title: 'Kalkulator Harga & Penawaran Karton Box',
+      sourceCalculator: 'PRICE',
+      items,
+      totalTons: Number(totalTons.toFixed(4)),
+      totalKg: Number(totalKg.toFixed(2)),
+      totalPcs,
+      totalAreaM2: Number(totalAreaM2.toFixed(2)),
+      totalNetOrder: Math.round(totalNetOrder),
+      totalGrossOrder: Math.round(totalGrossOrder),
+    };
+  }, [computedRows]);
+
   // Export to CSV file
   const exportCSV = () => {
     const headers = [
@@ -259,11 +319,12 @@ export function PriceCalculator({ initialRows }: PriceCalculatorProps) {
           </button>
 
           <button
-            onClick={exportCSV}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold font-mono bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 transition-all"
+            onClick={() => setIsDownloadSummaryOpen(true)}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold font-mono bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 transition-all shadow-sm"
+            title="Download Summary dalam format WhatsApp, Email, TXT & CSV"
           >
             <Download className="w-4 h-4 text-emerald-400" />
-            <span>Export CSV</span>
+            <span>Download Summary</span>
           </button>
 
           <button
@@ -525,6 +586,12 @@ export function PriceCalculator({ initialRows }: PriceCalculatorProps) {
         onClose={() => setIsBulkOpen(false)}
         mode="price"
         onImport={handleBulkImport}
+      />
+
+      <DownloadSummaryModal
+        isOpen={isDownloadSummaryOpen}
+        onClose={() => setIsDownloadSummaryOpen(false)}
+        data={summaryExportData}
       />
     </div>
   );

@@ -23,8 +23,11 @@ import {
   Sparkles,
   Info,
   Maximize2,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Download
 } from 'lucide-react';
+import { DownloadSummaryModal } from '../modals/DownloadSummaryModal';
+import { SummaryExportData } from '../../lib/summaryExport';
 
 interface BoxConverterProps {
   key?: React.Key;
@@ -78,6 +81,7 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
   // 5. Quantity for Batch Order calculation
   const [batchQuantity, setBatchQuantity] = useState<number>(1000);
   const [copied, setCopied] = useState(false);
+  const [isDownloadSummaryOpen, setIsDownloadSummaryOpen] = useState(false);
 
   // Master substance catalog keys from priceList
   const allSubstances = useMemo(() => {
@@ -193,6 +197,32 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const summaryExportData: SummaryExportData = useMemo(() => ({
+    title: `Kalkulasi Konversi Box ke Sheet (${result.boxStyle})`,
+    sourceCalculator: 'BOX_CONVERTER',
+    items: [
+      {
+        name: `Box ${result.boxStyle} (${boxLength}x${boxWidth}x${boxHeight} mm)`,
+        panjang: result.sheetLength,
+        lebar: result.sheetWidth,
+        tinggi: boxHeight,
+        boxStyle: result.boxStyle,
+        substance: result.substanceUsed,
+        flute,
+        gsm: Number(result.totalGsm.toFixed(1)),
+        quantity: batchQuantity,
+        weightGram: result.weightPerBoxGram,
+        rowWeightKg: batchTotalWeightKg,
+        rowTonnageTons: batchTotalTons,
+        areaM2: result.sheetAreaM2,
+      }
+    ],
+    totalTons: Number(batchTotalTons.toFixed(4)),
+    totalKg: Number(batchTotalWeightKg.toFixed(2)),
+    totalPcs: batchQuantity,
+    totalAreaM2: Number(batchTotalSqm.toFixed(2)),
+  }), [result, boxLength, boxWidth, boxHeight, flute, batchQuantity, batchTotalWeightKg, batchTotalTons, batchTotalSqm]);
+
   return (
     <div className="space-y-8 max-w-7xl mx-auto animate-in fade-in duration-300">
       {/* Header */}
@@ -215,6 +245,15 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsDownloadSummaryOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 font-bold text-xs font-mono tracking-wider shadow-sm transition-all"
+            title="Unduh & Bagikan ringkasan dimensi, tonase, dan armada via WhatsApp/Email"
+          >
+            <Download className="w-4 h-4 text-emerald-400" />
+            <span>Download Summary</span>
+          </button>
+
           <button
             onClick={handleCopySpec}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs font-mono tracking-wider shadow-lg shadow-amber-500/25 transition-all"
@@ -876,6 +915,12 @@ export function BoxConverter({ onSendToPriceCalc, onSendToGodMode }: BoxConverte
           </div>
         </div>
       </div>
+
+      <DownloadSummaryModal
+        isOpen={isDownloadSummaryOpen}
+        onClose={() => setIsDownloadSummaryOpen(false)}
+        data={summaryExportData}
+      />
     </div>
   );
 }
